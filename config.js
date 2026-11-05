@@ -1,6 +1,1 @@
-window.IC_CONFIG = {
-  clientId: "889d90be-b7f5-40da-a7b2-b76dcfd10543",
-  tenantId: "common",
-  apiClientId: "",
-  apiBaseUrl: ""
-};
+window.IC_CONFIG = { scriptUrl: "https://script.google.com/macros/s/AKfycbz4PCTUaVmQIJ9074prm_lNkYlSxh_ygkr7n-NhysoYCJI5hyqFEtQMHa_yEN-0OzR-/exec" };
