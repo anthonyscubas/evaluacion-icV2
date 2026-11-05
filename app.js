@@ -95,7 +95,24 @@ function drawAdmin(tab){S.adminTab=tab;$('adminTitle').textContent=adminTitles[t
  $('adminList').innerHTML=values.map(a=>`<div class="ic-list-row"><strong>${esc(a.nombre)}</strong><small>${esc(analyst?a.canal+' · '+(a.correo||'Sin correo'):channel?'Canal activo':a.correo)}</small></div>`).join('')||'<p class="ic-muted">No hay registros todavía.</p>';
 }
 function surveyType(){return S.role==='CONTROLLER'?'INTERNA':'ALICORP'}
-function surveyAnalysts(){const a=S.data?.analistas||[];if(S.role==='CONTROLLER')return a.filter(x=>!x.controller||norm(x.controller)===S.email);return a}
+function surveyAnalysts() {
+    const analistas = S.data?.analistas || [];
+
+    if (S.role === 'CONTROLLER') {
+        return analistas.filter(a =>
+            !a.controller ||
+            norm(a.controller) === S.email
+        );
+    }
+
+    if (S.role === 'ALICORP') {
+        return analistas.filter(a =>
+            norm(a.alicorp) === S.email
+        );
+    }
+
+    return [];
+}
 function drawMatrix(){if(!S.data)return;const type=surveyType(),q=Q[type],list=surveyAnalysts();
  $('surveyKicker').textContent=(type==='INTERNA'?'EVALUACIÓN INTERNA · 45 PUNTOS':'EVALUACIÓN ALICORP · 55 PUNTOS');
  $('surveyTitle').textContent=type==='INTERNA'?'Matriz de evaluación interna de analistas':'Matriz de evaluación de analistas';
