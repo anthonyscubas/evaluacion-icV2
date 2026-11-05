@@ -65,7 +65,15 @@ async function login(e){e.preventDefault();const btn=e.submitter||$('loginForm')
  try{await refresh()}catch(err){notice('Ingresaste, pero no se pudieron cargar los datos: '+err.message,true)}
  }catch(err){const el=$('loginForm').querySelector('.ic-error')||document.createElement('p');el.className='ic-error';el.textContent=err.message;$('loginForm').append(el)}
  finally{btn.disabled=false;btn.textContent='Ver mi módulo →'}}
-async function refresh(){S.data=await api({action:'data',email:S.email});if(S.screen.startsWith('admin:'))drawAdmin(S.adminTab);if(S.screen==='dashboard')drawDashboard();if(S.screen==='history')drawHistory();if(S.screen==='survey')drawMatrix()}
+async function refresh(){console.table(
+    (S.data?.analistas || []).map(a => ({
+        Analista: a.nombre,
+        Canal: a.canal,
+        Controller: a.controller,
+        Alicorp: a.alicorp ?? a.ALICORP,
+        Coincide: norm(a.alicorp ?? a.ALICORP) === norm(S.email)
+    }))
+);S.data=await api({action:'data',email:S.email});if(S.screen.startsWith('admin:'))drawAdmin(S.adminTab);if(S.screen==='dashboard')drawDashboard();if(S.screen==='history')drawHistory();if(S.screen==='survey')drawMatrix()}
 function selectedRows(){const p=$('dashboardPeriod').value;return(S.data?.analistas||[]).map(a=>{
  const e=(S.data.evaluaciones||[]).filter(x=>String(x.analista_id)===String(a.id)&&String(x.periodo)===p&&x.estado==='COMPLETA');
  const i=e.find(x=>x.tipo==='INTERNA'),v=e.find(x=>x.tipo==='ALICORP'),n=Number(Boolean(i))+Number(Boolean(v));
@@ -97,21 +105,23 @@ function drawAdmin(tab){S.adminTab=tab;$('adminTitle').textContent=adminTitles[t
 function surveyType(){return S.role==='CONTROLLER'?'INTERNA':'ALICORP'}
 function surveyAnalysts() {
     const analistas = S.data?.analistas || [];
+    const correo = norm(S.email);
+    const rol = norm(S.role).toUpperCase();
 
-    if (S.role === 'CONTROLLER') {
+    if (rol === 'CONTROLLER') {
         return analistas.filter(a =>
-            !a.controller ||
-            norm(a.controller) === S.email
+            norm(a.controller) === correo
         );
     }
 
-    if (S.role === 'ALICORP') {
+    if (rol === 'ALICORP') {
         return analistas.filter(a =>
-            norm(a.alicorp) === S.email
+            norm(a.alicorp ?? a.ALICORP) === correo
         );
     }
 
     return [];
+
 }
 function drawMatrix(){if(!S.data)return;const type=surveyType(),q=Q[type],list=surveyAnalysts();
  $('surveyKicker').textContent=(type==='INTERNA'?'EVALUACIÓN INTERNA · 45 PUNTOS':'EVALUACIÓN ALICORP · 55 PUNTOS');
