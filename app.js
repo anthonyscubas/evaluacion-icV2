@@ -1,46 +1,121 @@
+
 (() => {
   "use strict";
+
   const cfg = window.IC_CONFIG || {};
   const message = document.getElementById("message");
   const signin = document.getElementById("signin");
   const signout = document.getElementById("signout");
   const identity = document.getElementById("identity");
 
-  const configured = Boolean(cfg.clientId && cfg.tenantId);
+  function status(text) {
+    if (message) message.textContent = text;
+  }
 
-  if (!configured) return;
-  if (!window.msal) { message.textContent = "No se pudo cargar MSAL.js. Verifica la conexión."; return; }
+  if (!signin || !signout || !identity || !message) {
+    console.error("Faltan elementos del formulario de acceso.");
+    return;
+  }
+
+  if (!cfg.clientId || !cfg.tenantId) {
+    status("Falta configurar Microsoft Entra ID.");
+    return;
+  }
+
+  if (!window.msal?.PublicClientApplication) {
+    status("Error: MSAL.js no está cargando.");
+    console.error("No se encontró window.msal");
+    return;
+  }
+
   const client = new msal.PublicClientApplication({
-    auth: { clientId: cfg.clientId, authority: `https://login.microsoftonline.com/${cfg.tenantId}`, redirectUri: location.origin + location.pathname },
-    cache: { cacheLocation: "sessionStorage" }
+    auth: {
+      clientId: cfg.clientId,
+      authority:
+        `https://login.microsoftonline.com/${cfg.tenantId}`,
+      redirectUri:
+        "https://anthonyscubas.github.io/evaluacion-icV2/"
+    },
+    cache: {
+      cacheLocation: "sessionStorage"
+    }
   });
-  const scopes = [`api://${cfg.apiClientId || cfg.clientId}/access_as_user`];
+
+  // Solo autenticación de identidad.
+  // La autorización de la API se configurará después.
+  const loginRequest = {
+    scopes: ["openid", "profile"]
+  };
+
   async function showSession(account) {
-    if (!account) return;
-    identity.textContent = account.name || account.username;
+    identity.textContent =
+      account.name || account.username || "Usuario";
+
     signin.hidden = true;
     signout.hidden = false;
-    message.textContent = "Identidad verificada. Comprobando permisos del servidor…";
-    try {
-      const token = await client.acquireTokenSilent({ account, scopes });
-      const response = await fetch(`${cfg.apiBaseUrl.replace(/\/$/, "")}/api/me`, { headers: { Authorization: `Bearer ${token.accessToken}` } });
-      if (!response.ok) throw new Error(`Acceso denegado o servicio no disponible (${response.status})`);
-      const data = await response.json();
-      message.textContent = `Acceso autorizado. Perfil: ${data.role || "sin asignar"}.`;
-      // No renderizar módulos con datos hasta que sus endpoints y autorizaciones estén implementados.
-    } catch (err) { message.textContent = `No se pudo validar el acceso: ${err.message}`; }
+
+    if (!cfg.apiBaseUrl || !cfg.apiClientId) {
+      status(
+        "Sesión Microsoft iniciada correctamente. " +
+        "Los módulos permanecerán bloqueados hasta " +
+        "configurar y validar los permisos en la API."
+      );
+      return;
+    }
+
+    status(
+      "Identidad verificada. Pendiente de implementar " +
+      "la validación de roles en el servidor."
+    );
   }
-  signin.disabled = false;
-  message.textContent = "Inicia sesión para verificar tu identidad y tus permisos.";
+
+  async function start() {
+    try {
+      const result = await client.handleRedirectPromise();
+
+      if (result?.account) {
+        client.setActiveAccount(result.account);
+      }
+
+      const account =
+        client.getActiveAccount() ||
+        client.getAllAccounts()[0];
+
+      if (account) {
+        await showSession(account);
+        return;
+      }
+
+      signin.disabled = false;
+      status("Listo para iniciar sesión con Microsoft.");
+
+    } catch (error) {
+      console.error("Error MSAL:", error);
+      status("Error de autenticación: " + error.message);
+      signin.disabled = false;
+    }
+  }
+
   signin.addEventListener("click", async () => {
     signin.disabled = true;
-    try { await client.loginRedirect({ scopes }); }
-    catch (err) { message.textContent = `Error de autenticación: ${err.message}`; signin.disabled = false; }
+    status("Redirigiendo a Microsoft...");
+
+    try {
+      await client.loginRedirect(loginRequest);
+    } catch (error) {
+      console.error(error);
+      status("No se pudo iniciar sesión: " + error.message);
+      signin.disabled = false;
+    }
   });
-  signout.addEventListener("click", () => client.logoutRedirect({ account: client.getActiveAccount() || client.getAllAccounts()[0] }));
-  client.handleRedirectPromise().then(result => {
-    if (result?.account) client.setActiveAccount(result.account);
-    const account = client.getActiveAccount() || client.getAllAccounts()[0];
-    if (account) showSession(account);
-  }).catch(err => { message.textContent = `Error al procesar el inicio de sesión: ${err.message}`; });
+
+  signout.addEventListener("click", async () => {
+    const account =
+      client.getActiveAccount() ||
+      client.getAllAccounts()[0];
+
+    await client.logoutRedirect({ account });
+  });
+
+  start();
 })();
