@@ -5,7 +5,9 @@
   const signin = document.getElementById("signin");
   const signout = document.getElementById("signout");
   const identity = document.getElementById("identity");
-  const configured = Boolean(cfg.clientId && cfg.tenantId && cfg.apiBaseUrl);
+
+  const configured = Boolean(cfg.clientId && cfg.tenantId);
+
   if (!configured) return;
   if (!window.msal) { message.textContent = "No se pudo cargar MSAL.js. Verifica la conexión."; return; }
   const client = new msal.PublicClientApplication({
