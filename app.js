@@ -90,7 +90,7 @@ async function refresh() {
     if (S.screen === 'survey') {
         drawMatrix();
     }
-};S.data=await api({action:'data',email:S.email});if(S.screen.startsWith('admin:'))drawAdmin(S.adminTab);if(S.screen==='dashboard')drawDashboard();if(S.screen==='history')drawHistory();if(S.screen==='survey')drawMatrix()}
+}
 function selectedRows() {
     const periodo = String($('dashboardPeriod').value).trim();
     const analistas = S.data?.analistas || [];
