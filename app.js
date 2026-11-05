@@ -37,8 +37,8 @@ const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>'
 function show(view){
  document.querySelectorAll('.view').forEach(x=>x.hidden=x.id!==view);
  document.querySelectorAll('[data-view]').forEach(x=>x.classList.toggle('active',x.dataset.view===view));
- $('sectionName').textContent=({inicio:'Inicio',evaluar:'Evaluaciones',historial:'Historial',admin:'Administración'})[view]||'Acceso';
- if(view==='historial')renderHistory();
+ $('sectionName').textContent=({inicio:'Inicio',evaluar:'Evaluaciones',historial:'Historial',resultados:'Panel de resultados',admin:'Administración'})[view]||'Acceso';
+ if(view==='historial')renderHistory();if(view==='resultados')renderResults();
 }
 async function refresh(){
  state.data=await api({action:'data',email:state.email});
@@ -47,11 +47,28 @@ async function refresh(){
  $('countEvals').textContent=d.evaluaciones.length;
  $('countComplete').textContent=d.evaluaciones.filter(x=>x.estado==='COMPLETA').length;
  $('analista').innerHTML='<option value="">Seleccionar analista</option>'+d.analistas.map(a=>`<option value="${escape(a.id)}">${escape(a.nombre)} · ${escape(a.canal)}</option>`).join('');
+ $('analystsList').innerHTML=d.analistas.map(a=>`<div class="list-row"><b>${escape(a.nombre)}</b><span>${escape(a.canal||'Sin canal')} · ${escape(a.correo||'Sin correo')}</span></div>`).join('')||'Sin analistas';
  $('usersList').innerHTML=d.usuarios.map(u=>`<div>${escape(u.nombre)} — ${escape(u.correo)} <b>${escape(u.rol)}</b></div>`).join('')||'Sin usuarios';
- renderHistory();
+ renderHistory();renderResults();
 }
 function renderHistory(){
  $('historyRows').innerHTML=(state.data?.evaluaciones||[]).map(e=>`<tr><td>${escape(e.periodo)}</td><td>${escape(e.analista)}</td><td>${escape(e.tipo)}</td><td>${escape(e.evaluador)}</td><td>${escape(e.estado)}</td><td>${escape(e.puntaje)} / ${escape(e.maximo)}</td></tr>`).join('')||'<tr><td colspan="6">Sin evaluaciones</td></tr>';
+}
+function renderResults(){
+ const d=state.data;if(!d)return;
+ const period=$('resultPeriod').value||$('periodo').value;
+ const query=($('resultSearch').value||'').trim().toLowerCase();
+ const items=d.analistas.filter(a=>a.nombre.toLowerCase().includes(query));
+ $('resultRows').innerHTML=items.map(a=>{
+  const ev=d.evaluaciones.filter(e=>String(e.analista_id)===String(a.id)&&String(e.periodo)===period&&e.estado==='COMPLETA');
+  const internal=ev.filter(e=>e.tipo==='INTERNA');
+  const alicorp=ev.filter(e=>e.tipo==='ALICORP');
+  const avg=xs=>xs.length?xs.reduce((sum,x)=>sum+Number(x.puntaje||0),0)/xs.length:null;
+  const i=avg(internal),al=avg(alicorp);
+  const total=(i===null?45:i)+(al===null?55:al);
+  const status=i!==null&&al!==null?'Completo':'Pendiente';
+  return `<tr><td><b>${escape(a.nombre)}</b></td><td>${i===null?'Pendiente':i.toFixed(2)}</td><td>${al===null?'Pendiente':al.toFixed(2)}</td><td><strong>${total.toFixed(2)}</strong></td><td><span class="status-pill">${status}</span></td></tr>`;
+ }).join('')||'<tr><td colspan="5">No hay analistas registrados.</td></tr>';
 }
 function renderQuestions(){
  const type=$('tipo').value;
@@ -69,7 +86,7 @@ async function login(e){
   const allowed=res.user.rol.toUpperCase();
   $('tipo').innerHTML=['ADMINISTRADOR','CONTROLLER','COORDINADOR'].includes(allowed)?'<option value="INTERNA">Evaluación interna · 45 puntos</option>':'';
   if(['ADMINISTRADOR','ALICORP'].includes(allowed))$('tipo').innerHTML+='<option value="ALICORP">Evaluación Alicorp · 55 puntos</option>';
-  renderQuestions();await refresh();show('inicio');alertMsg('');
+  renderQuestions();show('inicio');try{await refresh();alertMsg('')}catch(error){alertMsg('Sesión iniciada, pero no se pudieron cargar los datos: '+error.message)}
  }catch(err){alertMsg(err.message)}
 }
 async function save(complete){
@@ -90,10 +107,13 @@ async function submitAdmin(e,action){
 $('loginForm').addEventListener('submit',login);
 $('logout').addEventListener('click',()=>location.reload());
 document.querySelectorAll('[data-view]').forEach(x=>x.addEventListener('click',()=>{alertMsg('');show(x.dataset.view)}));
+$('resultPeriod').addEventListener('change',renderResults);
+$('resultSearch').addEventListener('input',renderResults);
+document.querySelectorAll('[data-admin-tab]').forEach(x=>x.addEventListener('click',()=>{document.querySelectorAll('[data-admin-tab]').forEach(y=>y.classList.toggle('active',x===y));const tab=x.dataset.adminTab;document.querySelector('.admin-forms').hidden=tab==='canales';$('analystsList').closest('.panel').hidden=tab==='usuarios';$('usersList').closest('.panel').hidden=tab==='analistas';}));
 $('tipo').addEventListener('change',renderQuestions);
 $('evalForm').addEventListener('submit',e=>{e.preventDefault();save(true)});
 $('draft').addEventListener('click',()=>save(false));
 $('userForm').addEventListener('submit',e=>submitAdmin(e,'addUser'));
 $('analystForm').addEventListener('submit',e=>submitAdmin(e,'addAnalyst'));
-$('periodo').value=new Date().toISOString().slice(0,7);
+$('periodo').value=new Date().toISOString().slice(0,7);$('resultPeriod').value=$('periodo').value;
 })();
