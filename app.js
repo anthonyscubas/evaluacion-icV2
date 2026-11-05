@@ -65,31 +65,119 @@ async function login(e){e.preventDefault();const btn=e.submitter||$('loginForm')
  try{await refresh()}catch(err){notice('Ingresaste, pero no se pudieron cargar los datos: '+err.message,true)}
  }catch(err){const el=$('loginForm').querySelector('.ic-error')||document.createElement('p');el.className='ic-error';el.textContent=err.message;$('loginForm').append(el)}
  finally{btn.disabled=false;btn.textContent='Ver mi módulo →'}}
-async function refresh(){console.table(
-    (S.data?.analistas || []).map(a => ({
-        Analista: a.nombre,
-        Canal: a.canal,
-        Controller: a.controller,
-        Alicorp: a.alicorp ?? a.ALICORP,
-        Coincide: norm(a.alicorp ?? a.ALICORP) === norm(S.email)
-    }))
-);S.data=await api({action:'data',email:S.email});if(S.screen.startsWith('admin:'))drawAdmin(S.adminTab);if(S.screen==='dashboard')drawDashboard();if(S.screen==='history')drawHistory();if(S.screen==='survey')drawMatrix()}
-function selectedRows(){const p=$('dashboardPeriod').value;return(S.data?.analistas||[]).map(a=>{
- const e=(S.data.evaluaciones||[]).filter(x=>String(x.analista_id)===String(a.id)&&String(x.periodo)===p&&x.estado==='COMPLETA');
- const i=e.find(x=>x.tipo==='INTERNA'),v=e.find(x=>x.tipo==='ALICORP'),n=Number(Boolean(i))+Number(Boolean(v));
- const s=(i?Number(i.puntaje):40.5)+(v?Number(v.puntaje):49.5);
- const level=n===0?'Sin evaluar':s>=90?'Excelente':s>=75?'Cumple':s>=60?'En desarrollo':'Requiere mejora';
- return {a,i,v,n,s,level}
-})}
+async function refresh() {
+    S.data = await api({
+        action: 'data',
+        email: S.email
+    });
+
+    console.log('Datos recibidos:', S.data);
+    console.log('Analistas:', S.data?.analistas?.length || 0);
+    console.log('Evaluaciones:', S.data?.evaluaciones?.length || 0);
+
+    if (S.screen.startsWith('admin:')) {
+        drawAdmin(S.adminTab);
+    }
+
+    if (S.screen === 'dashboard') {
+        drawDashboard();
+    }
+
+    if (S.screen === 'history') {
+        drawHistory();
+    }
+
+    if (S.screen === 'survey') {
+        drawMatrix();
+    }
+};S.data=await api({action:'data',email:S.email});if(S.screen.startsWith('admin:'))drawAdmin(S.adminTab);if(S.screen==='dashboard')drawDashboard();if(S.screen==='history')drawHistory();if(S.screen==='survey')drawMatrix()}
+function selectedRows() {
+    const periodo = String($('dashboardPeriod').value).trim();
+    const analistas = S.data?.analistas || [];
+    const evaluaciones = S.data?.evaluaciones || [];
+
+    return analistas.map(a => {
+        const registros = evaluaciones.filter(e =>
+            String(e.analista_id).trim() === String(a.id).trim() &&
+            String(e.periodo).trim() === periodo &&
+            ['COMPLETA', 'COMPLETADO', 'FINALIZADA', 'FINALIZADO']
+                .includes(String(e.estado || '').trim().toUpperCase())
+        );
+
+        const interna = registros
+            .filter(e => String(e.tipo || '').trim().toUpperCase() === 'INTERNA')
+            .sort((x, y) => String(y.fecha || '').localeCompare(String(x.fecha || '')))[0];
+
+        const alicorp = registros
+            .filter(e => String(e.tipo || '').trim().toUpperCase() === 'ALICORP')
+            .sort((x, y) => String(y.fecha || '').localeCompare(String(x.fecha || '')))[0];
+
+        const n = Number(!!interna) + Number(!!alicorp);
+
+        const s =
+            (interna ? Number(interna.puntaje) : 40.5) +
+            (alicorp ? Number(alicorp.puntaje) : 49.5);
+
+        const level = n === 0
+            ? 'Sin evaluar'
+            : s >= 90
+                ? 'Excelente'
+                : s >= 75
+                    ? 'Cumple'
+                    : s >= 60
+                        ? 'En desarrollo'
+                        : 'Requiere mejora';
+
+        return {
+            a,
+            i: interna,
+            v: alicorp,
+            n,
+            s,
+            level
+        };
+    });
+}
 function drawDashboard(){if(!S.data)return;const rows=selectedRows(),covered=rows.filter(x=>x.n>0);
  $('kAverage').textContent=covered.length?(covered.reduce((x,y)=>x+y.s,0)/covered.length).toFixed(2):'—';
  $('kComplete').textContent=rows.filter(x=>x.n===2).length;
  $('kProgress').textContent=rows.filter(x=>x.n===1).length;
  $('kMissing').textContent=rows.filter(x=>x.n===0).length;
  $('dashboardRows').innerHTML=rows.map(x=>`<tr><td><strong>${esc(x.a.nombre)}</strong></td><td>${esc(x.a.canal)}</td><td>${x.i?Number(x.i.puntaje).toFixed(2):'<span class="ic-muted">40.50 (provisional)</span>'}</td><td>${x.v?Number(x.v.puntaje).toFixed(2):'<span class="ic-muted">49.50 (provisional)</span>'}</td><td><strong>${x.s.toFixed(2)}</strong></td><td>${x.n}/2</td><td><span class="ic-status">${esc(x.level)}</span></td></tr>`).join('')||'<tr><td colspan="7">No hay analistas registrados.</td></tr>'}
-function drawHistory(){if(!S.data)return;const p=$('historyPeriod').value;
- const evals=(S.data.evaluaciones||[]).filter(x=>!p||String(x.periodo)===p).sort((a,b)=>String(b.fecha).localeCompare(String(a.fecha)));
- $('historyRows').innerHTML=evals.map(e=>`<tr><td>${esc(String(e.fecha||'').slice(0,10))}</td><td>${esc(e.periodo)}</td><td>${esc(e.analista)}</td><td>${esc(e.tipo)}</td><td>${esc(e.evaluador)}</td><td>${esc(e.estado)}</td><td>${esc(e.puntaje)} / ${esc(e.maximo)}</td></tr>`).join('')||'<tr><td colspan="7">Sin evaluaciones en este periodo.</td></tr>';
+function drawHistory() {
+    if (!S.data) return;
+
+    const periodo = String($('historyPeriod').value || '').trim();
+
+    const evaluaciones = (S.data.evaluaciones || [])
+        .filter(e => {
+            const periodoExcel = String(e.periodo || '').trim();
+            return !periodo || periodoExcel === periodo;
+        })
+        .sort((a, b) =>
+            String(b.fecha || '').localeCompare(String(a.fecha || ''))
+        );
+
+    console.log('Evaluaciones recibidas:', S.data.evaluaciones);
+    console.log('Evaluaciones del periodo:', evaluaciones);
+
+    $('historyRows').innerHTML = evaluaciones.map(e => `
+        <tr>
+            <td>${esc(String(e.fecha || '').slice(0, 10))}</td>
+            <td>${esc(e.periodo)}</td>
+            <td>${esc(e.analista)}</td>
+            <td>${esc(e.tipo)}</td>
+            <td>${esc(e.evaluador)}</td>
+            <td>${esc(e.estado)}</td>
+            <td>${esc(e.puntaje)} / ${esc(e.maximo)}</td>
+        </tr>
+    `).join('') || `
+        <tr>
+            <td colspan="7">
+                No se encontraron evaluaciones para ${esc(periodo)}.
+            </td>
+        </tr>
+    `;
 }
 const adminTitles={analistas:'Analistas',coordinadores:'Coordinadores',controllers:'Controllers',alicorp:'Accesos Alicorp',canales:'Canales'};
 function drawAdmin(tab){S.adminTab=tab;$('adminTitle').textContent=adminTitles[tab];$('adminHeading').textContent='Gestión de '+adminTitles[tab].toLowerCase();$('adminNum').textContent=String(Object.keys(adminTitles).indexOf(tab)+1).padStart(2,'0');$('adminPeriod').textContent='Periodo '+currentPeriod;
