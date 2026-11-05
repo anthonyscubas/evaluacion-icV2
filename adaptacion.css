@@ -1,0 +1,56 @@
+
+/* Adaptación SPA sobre el estilo visual original de Evaluación IC */
+[hidden]{display:none!important}
+html,body{min-height:100%;overflow-x:clip}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+#access{min-height:100vh}
+#workspace{min-height:100vh}
+#workspace .enterprise-main{padding:28px 30px 48px}
+.ic-screen{min-width:0;width:100%}
+.ic-card{background:white;border:1px solid #e2e9f2;border-radius:16px;padding:22px;margin-top:23px;box-shadow:0 6px 20px #111d3208}
+.ic-title-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+.ic-title-row h2{margin:0;color:#142a45}
+.ic-title-row p{margin:3px 0 0;color:#6c7d90}
+.ic-table-scroll{width:100%;overflow-x:auto}
+.ic-table{border-collapse:collapse;width:100%;font-size:13px}
+.ic-table th{white-space:nowrap;background:#f1f5fa;padding:13px 12px;color:#1e3d59;text-align:left;font-size:12px}
+.ic-table td{border-bottom:1px solid #e6ecf4;padding:13px 12px}
+.ic-muted{color:#8290a3;font-size:12px}
+.ic-status{border:1px solid #d5e3f2;border-radius:20px;background:#eff5fc;padding:4px 8px;white-space:nowrap;font-weight:600}
+.ic-period{display:flex;align-items:center;gap:12px;font-size:13px}
+.ic-period input,.ic-title-row input{padding:10px;border:1px solid #cbd8e5;border-radius:8px;background:white}
+.ic-notice{border:1px solid #b9d8e4;background:#edf9fc;border-radius:11px;padding:13px 16px;color:#13415e;margin-bottom:17px}
+.ic-notice.bad{background:#fff0f1;color:#962d34;border-color:#f2b7bc}
+.ic-error{color:#b42335;font-size:13px}
+.ic-btn{background:white;color:#244462;border:1px solid #b7c6d8;padding:11px 17px;border-radius:10px;font-weight:700}
+#adminTabs button{border:0;background:transparent;color:#51657d;padding:12px 15px;font-weight:700;cursor:pointer;border-bottom:2px solid transparent}
+#adminTabs button.is-active{color:#23679a;border-bottom-color:#23679a}
+.ic-list-row{display:flex;gap:4px;flex-direction:column;padding:12px 0;border-bottom:1px solid #e8edf2}
+.ic-list-row small{color:#667890}
+#survey .matrix-shell{width:100%;min-width:0;max-width:100%}
+#survey .matrix-scroll{overflow:auto;width:100%;max-width:100%;border:1px solid #dce6f1;border-radius:14px;max-height:68vh}
+#survey .matrix-table{width:max-content;min-width:100%;border-collapse:collapse;font-size:12px}
+#survey .matrix-table th,#survey .matrix-table td{border:1px solid #e2eaf2;vertical-align:middle;padding:13px 10px}
+#survey .matrix-table thead th{position:sticky;top:0;z-index:5;background:#edf3f9;color:#163752;text-align:center}
+#survey .matrix-table .matrix-person{width:225px;min-width:225px;max-width:225px;text-align:left;white-space:normal}
+#survey .matrix-table .matrix-area{min-width:155px;max-width:190px}
+#survey .matrix-table .matrix-question,#survey .matrix-table .matrix-score-cell{width:265px;min-width:265px}
+#survey .matrix-question-number{display:block;margin-bottom:7px;color:#07589a;font-weight:800}
+#survey .matrix-question-title{display:block;white-space:normal;font-weight:700;font-size:11px;line-height:1.45}
+#survey .matrix-options{display:flex;justify-content:center;align-items:center;gap:6px}
+#survey .matrix-options label{position:relative;cursor:pointer}
+#survey .matrix-options input{position:absolute;opacity:0;width:1px;height:1px}
+#survey .matrix-options label span{display:grid;place-items:center;width:33px;height:34px;border-radius:8px;border:1px solid #bdd1e7;background:#fff;color:#274765;font-weight:700}
+#survey .matrix-options input:checked+span{background:#156e87;color:#fff;border-color:#156e87}
+#survey .matrix-options input:focus-visible+span{outline:2px solid #156e87;outline-offset:2px}
+#survey .matrix-table tbody tr:nth-child(even){background:#f6f9fc}
+.ic-comment{width:150px;resize:vertical;border-radius:8px;border:1px solid #ccd8e6;padding:7px}
+#progressBar{display:block;height:100%;width:0%;background:#2375a4;transition:width .2s}
+#survey .survey-identity{min-width:150px}
+#userEmail{overflow-wrap:anywhere}
+#workspace .enterprise-sidebar{z-index:50}
+#workspace .enterprise-menu a{cursor:pointer}
+#workspace .enterprise-logout{width:100%;text-align:left}
+@media(max-width:820px){#workspace.enterprise-layout{display:block}#workspace .enterprise-sidebar{position:fixed;left:0;top:0;transform:translateX(-110%);transition:transform .2s;width:265px}body.ic-menu-open #workspace .enterprise-sidebar{transform:translateX(0)}#workspace .enterprise-main{padding:16px}#workspace .dash-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}#workspace .admin-layout-two{grid-template-columns:1fr}}
+@media(max-width:480px){#workspace .dash-kpis{grid-template-columns:1fr}#workspace .enterprise-main{padding:12px}#workspace .admin-module-nav{overflow-x:auto;flex-wrap:nowrap}}
