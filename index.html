@@ -15,6 +15,13 @@
   <link rel="stylesheet" href="./enterprise-v4.css">
   <link rel="stylesheet" href="./reportes.css">
   <link rel="stylesheet" href="./adaptacion.css">
+  <style>
+  /* Ocultar únicamente la segunda columna: Área / canal */
+  #survey table.matrix-table > thead > tr > :nth-child(2),
+  #survey table.matrix-table > tbody > tr > :nth-child(2):not([colspan]) {
+    display: none !important;
+  }
+  </style>
 </head>
 
 <body class="guest-layout">
