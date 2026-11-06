@@ -680,3 +680,8 @@ a:focus-visible {
     animation: none !important;
   }
 }
+/* Ocultar Área / canal en los formularios Interno y Alicorp */
+#survey #matrixHead > tr > th:nth-child(2),
+#survey #matrixBody > tr > td.matrix-area:nth-child(2) {
+  display: none !important;
+}
