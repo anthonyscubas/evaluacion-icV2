@@ -36,7 +36,7 @@ const permissions={
  ADMINISTRADOR:[['dashboard','▦','Resumen ejecutivo'],['admin:analistas','◎','Analistas'],['admin:coordinadores','◈','Coordinadores'],['admin:controllers','◉','Controllers'],['admin:alicorp','▣','Alicorp'],['admin:canales','▦','Canales'],['history','▤','Histórico']],
  COORDINADOR:[['dashboard','▦','Resumen ejecutivo']],
  CONTROLLER:[['survey','▤','Evaluación interna']],
- ALICORP:[['survey','▤','Evaluación Alicorp']]
+ ALICORP:[['survey','▤','Evaluación']]
 };
 function navigate(key){
  const allowed=permissions[S.role]||[];
