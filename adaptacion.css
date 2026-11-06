@@ -742,3 +742,50 @@ a:focus-visible {
 #scaleLegend > :last-child {
   border-right: 0;
 }
+#survey #scaleLegend {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  margin-top: 12px;
+  padding: 0;
+  overflow-x: auto;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+}
+
+#survey #scaleLegend > .tabla-escala {
+  display: table;
+  width: 100%;
+  min-width: 480px;
+  margin: 0;
+  padding: 0;
+  table-layout: fixed;
+  border-collapse: collapse;
+  background: #ffffff;
+  box-shadow: none;
+}
+
+#survey #scaleLegend .tabla-escala th,
+#survey #scaleLegend .tabla-escala td {
+  position: static;
+  padding: 12px 8px;
+  border: 1px solid #cbd5e1;
+  text-align: center;
+  vertical-align: middle;
+  white-space: normal;
+  letter-spacing: normal;
+}
+
+#survey #scaleLegend .tabla-escala th {
+  background: #173e55;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+#survey #scaleLegend .tabla-escala td {
+  background: #ffffff;
+  color: #334155;
+  font-size: 13px;
+}
