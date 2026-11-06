@@ -62,3 +62,50 @@ h1,h2,h3{letter-spacing:-.035em}.eyebrow{color:#168b91;font-size:11px;letter-spa
 .auth-page{background:#f3f6f7}.auth-shell{background:radial-gradient(circle at 5% 90%,#d9eeea 0,transparent 46%),#f3f6f7}.auth-brand-dot{color:#18868b}.auth-mark i,.auth-mark i:nth-child(2),.auth-mark i:nth-child(3),.auth-mark i:nth-child(4){background:#1a8290}.auth-card{border:1px solid #deeaeb;border-radius:16px;box-shadow:0 22px 65px #14394b16}.auth-card h1{color:#12354a}.profile-option.active{color:#156c7e}.auth-submit{background:#176c82;box-shadow:0 8px 18px #176c8229}.auth-art{background:linear-gradient(135deg,#b8d4d7,#3d8290 48%,#0e354e)}.art-frame{background:#103c50b8}.art-stroke{background:#5fc1b1}
 @media(max-width:700px){main{width:min(100% - 30px,1390px)}.hero{padding:45px 29px}.top{padding:13px 16px}.top nav{gap:2px}.top nav a{padding:7px;font-size:12px}}
 @media print{.hero,.admin-alert-banner,.evaluation-head{-webkit-print-color-adjust:exact;print-color-adjust:exact}button{box-shadow:none!important}}
+
+
+/* Fondo del login: negro, violeta y verde */
+.auth-page {
+  background: #050607;
+}
+
+.auth-page .auth-shell {
+  min-height: 100vh;
+  min-height: 100dvh;
+
+  background:
+    radial-gradient(
+      ellipse at 100% 0%,
+      rgb(124 58 237 / 65%) 0%,
+      rgb(124 58 237 / 22%) 22%,
+      transparent 52%
+    ),
+    radial-gradient(
+      ellipse at 0% 100%,
+      rgb(0 214 160 / 55%) 0%,
+      rgb(0 214 160 / 16%) 25%,
+      transparent 55%
+    ),
+    #050607;
+}
+
+/* Tarjeta blanca con más profundidad */
+.auth-page .auth-card {
+  background: #ffffff;
+  border: 1px solid rgb(255 255 255 / 55%);
+  border-radius: 20px;
+  box-shadow: 0 24px 80px rgb(0 0 0 / 40%);
+}
+
+/* Marca y texto que quedan sobre el fondo oscuro */
+.auth-page .auth-brand {
+  color: #ffffff;
+}
+
+.auth-page .auth-brand-dot {
+  color: #00d6a0;
+}
+
+.auth-page .auth-copyright {
+  color: #a5b5b2;
+}
