@@ -81,6 +81,7 @@
         id="sidebarCompact"
         aria-label="Contraer menú lateral"
         aria-controls="enterprise-sidebar"
+        checked
       >
 
       <div class="enterprise-sidebar__head">
@@ -512,5 +513,62 @@
 
   <script src="./config.js"></script>
   <script src="./app.js"></script>
+  <script>
+  (() => {
+    const sidebar = document.getElementById('enterprise-sidebar');
+    const compact = document.getElementById('sidebarCompact');
+    const workspace = document.getElementById('workspace');
+    const desktop = window.matchMedia('(min-width: 821px)');
+  
+    if (!sidebar || !compact || !workspace) return;
+  
+    // checked = menú pequeño; sin checked = menú expandido.
+    compact.checked = true;
+  
+    sidebar.addEventListener('click', (event) => {
+      if (!desktop.matches) return;
+  
+      const target = event.target;
+      if (!(target instanceof Element)) return;
+  
+      // La flecha conserva su funcionamiento.
+      if (target.closest('.sidebar-collapse-control, #sidebarCompact')) {
+        return;
+      }
+  
+      // Al seleccionar un módulo, contraer el menú.
+      if (target.closest('#menu a, #brandHome')) {
+        compact.checked = true;
+        return;
+      }
+  
+      // Respetar otros controles, como cerrar sesión.
+      if (target.closest('a, button, input, select, textarea, label')) {
+        return;
+      }
+  
+      // Clic en el fondo azul: expandir el menú.
+      compact.checked = false;
+    });
+  
+    // Clic en el área del módulo o en la barra superior: contraer.
+    document.addEventListener('click', (event) => {
+      if (!desktop.matches || workspace.hidden) return;
+      if (!(event.target instanceof Node)) return;
+  
+      if (
+        workspace.contains(event.target) &&
+        !sidebar.contains(event.target)
+      ) {
+        compact.checked = true;
+      }
+    });
+  
+    // Al volver a la vista de escritorio, comenzar contraído.
+    desktop.addEventListener('change', () => {
+      if (desktop.matches) compact.checked = true;
+    });
+  })();
+  </script>
 </body>
 </html>
