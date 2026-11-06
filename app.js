@@ -59,8 +59,13 @@ async function login(e){e.preventDefault();const btn=e.submitter||$('loginForm')
  try{S.email=norm($('email').value);const r=await api({action:'login',email:S.email});S.user=r.user;S.role=String(r.user.rol||'').toUpperCase();
  if(!permissions[S.role])throw Error('Rol no reconocido.');
  $('access').hidden=true;$('workspace').hidden=false;document.body.classList.remove('guest-layout');document.body.classList.add('has-sidebar');
- $('userName').textContent=S.user.nombre||S.role;$('userEmail').textContent=S.email;$('avatar').textContent=S.email.slice(0,2).toUpperCase();$('roleTag').textContent=S.role;
- $('surveyUser').textContent=S.user.nombre;$('surveyRole').textContent=S.role;drawNav();
+ $('userName').textContent=S.user.nombre||S.role;$('userEmail').textContent=S.email;$('avatar').textContent=S.email.slice(0,2).toUpperCase();
+     $('roleTag').textContent = S.role === 'ALICORP' ? '' : S.role;
+     $('roleTag').hidden = S.role === 'ALICORP';
+ $('surveyUser').textContent=S.user.nombre;
+     $('surveyRole').textContent = S.role === 'ALICORP' ? '' : S.role;
+     $('surveyRole').hidden = S.role === 'ALICORP';
+     drawNav();
  navigate((permissions[S.role]||[])[0][0]);
  try{await refresh()}catch(err){notice('Ingresaste, pero no se pudieron cargar los datos: '+err.message,true)}
  }catch(err){const el=$('loginForm').querySelector('.ic-error')||document.createElement('p');el.className='ic-error';el.textContent=err.message;$('loginForm').append(el)}
