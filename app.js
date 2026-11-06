@@ -214,28 +214,7 @@ function surveyAnalysts() {
 function drawMatrix(){if(!S.data)return;const type=surveyType(),q=Q[type],list=surveyAnalysts();
  $('surveyKicker').textContent=(type==='INTERNA'?'EVALUACIÓN ANALISTAS':'EVALUACIÓN ANALISTAS');
  $('surveyTitle').textContent=type==='INTERNA'?'Matriz de evaluación interna de analistas':'Matriz de evaluación de analistas';
- $('scaleLegend').innerHTML = `
-  <table class="tabla-escala" aria-label="Escala de evaluación">
-    <thead>
-      <tr>
-        <th scope="col">1</th>
-        <th scope="col">2</th>
-        <th scope="col">3</th>
-        <th scope="col">4</th>
-        <th scope="col">5</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>Nunca</td>
-        <td>Pocas veces</td>
-        <td>A veces</td>
-        <td>Casi siempre</td>
-        <td>Siempre</td>
-      </tr>
-    </tbody>
-  </table>
-`;
+ 
  $('matrixHead').innerHTML='<tr><th class="matrix-person">Analista</th><th class="matrix-area">Área / canal</th>'+q.map((x,i)=>`<th class="matrix-question"><span class="matrix-question-number">P${i+1} · ${x[2]} PTS</span><span class="matrix-question-title">${esc(x[1])}</span></th>`).join('')+'<th class="matrix-area">Comentario</th></tr>';
  const history=S.data.evaluaciones||[],period=$('surveyPeriod').value;
  $('matrixBody').innerHTML=list.map(a=>{const prev=history.find(e=>String(e.analista_id)===String(a.id)&&e.periodo===period&&e.tipo===type&&norm(e.evaluador)===S.email);
