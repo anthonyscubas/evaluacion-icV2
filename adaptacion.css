@@ -685,3 +685,23 @@ a:focus-visible {
 #survey #matrixBody > tr > td.matrix-area:nth-child(2) {
   display: none !important;
 }
+/* Fondo del login */
+#access.access-page {
+  background:
+    radial-gradient(
+      ellipse at top right,
+      rgba(124, 58, 237, 0.65),
+      transparent 52%
+    ),
+    radial-gradient(
+      ellipse at bottom left,
+      rgba(0, 214, 160, 0.55),
+      transparent 55%
+    ),
+    #050607;
+}
+
+/* Ocultar los brillos anteriores */
+#access .access-glow {
+  display: none;
+}
