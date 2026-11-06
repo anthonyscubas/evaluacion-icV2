@@ -26,6 +26,30 @@
     display: none !important;
   }
   </style>
+  <style>
+    #survey #scaleLegend table th,
+    #survey #scaleLegend table td {
+      display: table-cell !important;
+      position: static !important;
+      border: 1px solid #94a3b8 !important;
+      padding: 12px 8px !important;
+      text-align: center !important;
+      vertical-align: middle !important;
+    }
+  
+    #survey #scaleLegend table th {
+      background: #173e55 !important;
+      color: white !important;
+      font-size: 16px !important;
+      font-weight: 700 !important;
+    }
+  
+    #survey #scaleLegend table td {
+      background: white !important;
+      color: #334155 !important;
+      font-size: 13px !important;
+    }
+  </style>
 </head>
 
 <body class="guest-layout">
@@ -452,7 +476,33 @@
                 Selecciona un valor del 1 al 5 para cada pregunta de los
                 analistas que te corresponde evaluar.
               </p>
-              <div class="escala-horizontal" id="scaleLegend"></div>
+              <div id="scaleLegend"
+                   style="display:block !important; width:100%; overflow-x:auto; margin-top:14px;">
+              
+                <table aria-label="Escala de evaluación"
+                       style="display:table !important; width:100%; min-width:460px; border-collapse:collapse !important; table-layout:fixed; background:white;">
+              
+                  <thead style="display:table-header-group !important;">
+                    <tr style="display:table-row !important;">
+                      <th scope="col">1</th>
+                      <th scope="col">2</th>
+                      <th scope="col">3</th>
+                      <th scope="col">4</th>
+                      <th scope="col">5</th>
+                    </tr>
+                  </thead>
+              
+                  <tbody style="display:table-row-group !important;">
+                    <tr style="display:table-row !important;">
+                      <td>Nunca</td>
+                      <td>Pocas veces</td>
+                      <td>A veces</td>
+                      <td>Casi siempre</td>
+                      <td>Siempre</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
 
             <form id="surveyForm" class="survey-form">
