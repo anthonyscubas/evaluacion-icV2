@@ -212,7 +212,7 @@ function surveyAnalysts() {
 
 }
 function drawMatrix(){if(!S.data)return;const type=surveyType(),q=Q[type],list=surveyAnalysts();
- $('surveyKicker').textContent=(type==='INTERNA'?'EVALUACIÓN INTERNA · 45 PUNTOS':'EVALUACIÓN ALICORP · 55 PUNTOS');
+ $('surveyKicker').textContent=(type==='INTERNA'?'EVALUACIÓN ANALISTAS':'EVALUACIÓN ANALISTAS');
  $('surveyTitle').textContent=type==='INTERNA'?'Matriz de evaluación interna de analistas':'Matriz de evaluación de analistas';
  $('scaleLegend').innerHTML=['Nunca','Pocas veces','A veces','Casi siempre','Siempre'].map((x,i)=>`<div class="escala-item"><span class="escala-numero">${i+1}</span><span class="escala-titulo">${x}</span></div>`).join('');
  $('matrixHead').innerHTML='<tr><th class="matrix-person">Analista</th><th class="matrix-area">Área / canal</th>'+q.map((x,i)=>`<th class="matrix-question"><span class="matrix-question-number">P${i+1} · ${x[2]} PTS</span><span class="matrix-question-title">${esc(x[1])}</span></th>`).join('')+'<th class="matrix-area">Comentario</th></tr>';
