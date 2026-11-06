@@ -705,3 +705,40 @@ a:focus-visible {
 #access .access-glow {
   display: none;
 }
+/* Escala con apariencia de tabla */
+#scaleLegend {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 0;
+  width: 100%;
+  padding: 0;
+  margin-top: 12px;
+  overflow-x: auto;
+  background: #ffffff;
+  border: 1px solid #dbe5ea;
+  border-radius: 8px;
+}
+
+#scaleLegend > * {
+  flex: 1 0 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  box-sizing: border-box;
+  margin: 0;
+  padding: 14px 12px;
+  text-align: center;
+  color: #172d43;
+  background: #f8fafc;
+  border: 0;
+  border-right: 1px solid #dbe5ea;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+#scaleLegend > :last-child {
+  border-right: 0;
+}
