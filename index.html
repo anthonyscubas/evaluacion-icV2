@@ -513,15 +513,9 @@
                   <span>Periodo</span>
                   <input id="surveyPeriod" type="month" required>
                 </label>
-                <a
-                  id="verReportes"
-                  class="ic-btn"
-                  href="PEGA_AQUI_LA_URL_DEL_VISOR_TERMINADA_EN_EXEC"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
+                <button type="button" class="ic-btn" id="verReportes">
                   Ver reportes
-                </a>
+                </button>
               </div>
 
               <div class="matrix-help">
@@ -577,7 +571,39 @@
       </main>
     </div>
   </div>
-
+  <dialog id="modal-reportes" class="modal-reportes" aria-labelledby="tituloReportes">
+    <section class="reportes-contenido">
+      <button type="button" class="reportes-cerrar" id="cerrarReportes"
+              aria-label="Cerrar reportes">×</button>
+  
+      <h2 id="tituloReportes">Reportes de analistas</h2>
+  
+      <div class="reportes-filtros">
+        <label>Canal <select id="filtroCanal"></select></label>
+        <label>Analista <select id="filtroAnalista"></select></label>
+        <label>Reporte <select id="filtroReporte"></select></label>
+      </div>
+  
+      <p id="estadoReportes" role="status"></p>
+  
+      <div class="reportes-tabla-scroll">
+        <table class="reportes-tabla" aria-labelledby="tituloReportes">
+          <thead>
+            <tr>
+              <th scope="col">Canal</th>
+              <th scope="col">Programa</th>
+              <th scope="col">Analista</th>
+              <th scope="col">Reporte</th>
+              <th scope="col">KPI</th>
+              <th scope="col">Frecuencia</th>
+              <th scope="col">Mes</th>
+            </tr>
+          </thead>
+          <tbody id="filasReportes"></tbody>
+        </table>
+      </div>
+    </section>
+  </dialog>
   <script src="./config.js"></script>
   <script src="./app.js"></script>
   <script>
