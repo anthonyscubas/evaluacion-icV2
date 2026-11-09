@@ -9,7 +9,7 @@
 }
 
 /* FONDO OSCURECIDO */
-.modal-reportes:not([hidden]) {
+.modal-reportes[open] {
     position: fixed !important;
     inset: 0 !important;
     z-index: 999999 !important;
@@ -362,7 +362,7 @@
 
 @media (max-width: 700px) {
 
-    .modal-reportes:not([hidden]) {
+    .modal-reportes[open] {
         padding: 10px !important;
     }
 
@@ -439,7 +439,7 @@
     display: none !important;
 }
 
-#modal-reportes:not([hidden]) {
+#modal-reportes[open] {
     position: fixed !important;
     inset: 0 !important;
     z-index: 999999 !important;
