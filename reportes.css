@@ -455,3 +455,20 @@
     max-height: 88vh !important;
     overflow: hidden !important;
 }
+#modal-reportes {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  border: 0;
+  box-sizing: border-box;
+}
+
+#modal-reportes .reportes-tabla {
+  table-layout: auto !important;
+}
+
+#modal-reportes .reportes-tabla th {
+  width: auto;
+}
