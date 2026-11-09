@@ -248,4 +248,65 @@ $('adminTabs').querySelectorAll('button').forEach(b=>b.addEventListener('click',
 $('analystForm').addEventListener('submit',e=>saveAdmin(e,'addAnalyst'));$('userForm').addEventListener('submit',e=>saveAdmin(e,'addUser'));$('channelForm').addEventListener('submit',e=>saveAdmin(e,'addChannel'));
 $('surveyForm').addEventListener('submit',e=>{e.preventDefault();saveMatrix(true)});$('saveDrafts').addEventListener('click',()=>saveMatrix(false));$('matrixBody').addEventListener('change',updateProgress);$('exportCsv').addEventListener('click',exportCsv);
 $('menuToggle').addEventListener('click',()=>document.body.classList.toggle('ic-menu-open'));
+const ventanaReportes = $('modal-reportes');
+const filtrosReportes = [
+  [$('filtroCanal'), 'canal'],
+  [$('filtroAnalista'), 'analista'],
+  [$('filtroReporte'), 'reporte']
+];
+let reportes = [];
+
+function dibujarReportes() {
+  const visibles = reportes.filter(r =>
+    filtrosReportes.every(([select, campo]) => !select.value || r[campo] === select.value)
+  );
+
+  $('filasReportes').innerHTML = visibles.map(r => `
+    <tr>${[r.canal, r.programa, r.analista, r.reporte, r.kpi, r.frecuencia, r.mes]
+      .map(valor => `<td>${esc(valor)}</td>`).join('')}</tr>
+  `).join('');
+
+  $('estadoReportes').textContent = visibles.length
+    ? `${visibles.length} de ${reportes.length} reportes`
+    : 'No hay reportes para los filtros seleccionados.';
+}
+
+$('verReportes').addEventListener('click', async () => {
+  const boton = $('verReportes');
+  boton.disabled = true;
+  reportes = [];
+  $('filasReportes').textContent = '';
+  $('estadoReportes').textContent = 'Cargando reportes…';
+
+  for (const [select] of filtrosReportes) {
+    select.replaceChildren(new Option('Todos', ''));
+    select.disabled = true;
+  }
+
+  ventanaReportes.showModal();
+
+  try {
+    reportes = await api({ action: 'reportes', email: S.email });
+
+    for (const [select, campo] of filtrosReportes) {
+      const opciones = [...new Set(reportes.map(r => r[campo]).filter(Boolean))];
+      opciones.sort((a, b) => a.localeCompare(b, 'es'));
+      for (const valor of opciones) select.add(new Option(valor, valor));
+      select.disabled = false;
+    }
+
+    dibujarReportes();
+  } catch (error) {
+    $('estadoReportes').textContent = `No se pudieron cargar los reportes. ${error.message}`;
+  } finally {
+    boton.disabled = false;
+    if (!ventanaReportes.open) boton.focus();
+  }
+});
+
+$('cerrarReportes').addEventListener('click', () => ventanaReportes.close());
+
+for (const [select] of filtrosReportes) {
+  select.addEventListener('change', dibujarReportes);
+}
 })();
