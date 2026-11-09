@@ -468,7 +468,9 @@
 #modal-reportes .reportes-tabla {
   table-layout: auto !important;
 }
-
+#modal-reportes:not([open]) {
+  display: none !important;
+}
 #modal-reportes .reportes-tabla th {
   width: auto;
 }
