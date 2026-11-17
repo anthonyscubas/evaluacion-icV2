@@ -229,13 +229,28 @@ function drawMatrix(){if(!S.data)return;const type=surveyType(),q=Q[type],list=s
 }
 function updateProgress(){const rows=[...$('matrixBody').querySelectorAll('tr[data-analyst]')],total=rows.length*Q[surveyType()].length,answered=rows.reduce((s,r)=>s+r.querySelectorAll('input:checked').length,0),pct=total?Math.round(answered/total*100):0;
  $('progressPct').textContent=pct+' %';$('progressBar').style.width=pct+'%';$('progressCount').textContent=`${answered} de ${total} respuestas seleccionadas`}
+let temporizadorGuardado;
+function mostrarMensajeGuardado() {
+    const mensaje = document.getElementById('mensajeGuardado');
+    if (!mensaje) return;
+    clearTimeout(temporizadorGuardado);
+    mensaje.hidden = false;
+    temporizadorGuardado = setTimeout(() => {
+        mensaje.hidden = true;
+    }, 3500);
+}
 async function saveMatrix(full){const rows=[...$('matrixBody').querySelectorAll('tr[data-analyst]')],type=surveyType(),q=Q[type],period=$('surveyPeriod').value;
  const entries=rows.map(r=>({analista_id:r.dataset.analyst,answers:q.map((_,i)=>{const x=r.querySelector(`input[name="q_${CSS.escape(r.dataset.analyst)}_${i}"]:checked`);return x?Number(x.value):null}),comentario:r.querySelector('textarea').value})).filter(x=>x.answers.some(v=>v!==null));
  if(!entries.length){notice('Selecciona al menos una respuesta para guardar.',true);return}
  if(full&&entries.some(x=>x.answers.some(v=>v===null))){notice('Completa todas las preguntas de cada analista que empezaste a evaluar, o guarda como borrador.',true);return}
  const saveBtn=$('saveSurveys'),draftBtn=$('saveDrafts');saveBtn.disabled=draftBtn.disabled=true;
  let good=0;try{for(const e of entries){await api({action:'save',email:S.email,tipo:type,analista_id:e.analista_id,periodo:period,comentario:e.comentario,respuestas:JSON.stringify(e.answers)});good++}
- await refresh();notice(`${good} evaluación(es) guardada(s) en Google Sheets.`)}
+ await refresh();
+ notice(`${good} evaluación(es) guardada(s) en Google Sheets.`);
+ if (good === entries.length) {
+     mostrarMensajeGuardado();
+ }
+ }
  catch(err){notice(`Se guardaron ${good} de ${entries.length}. Error: ${err.message}`,true)}
  finally{saveBtn.disabled=draftBtn.disabled=false}}
 async function saveAdmin(e,action){e.preventDefault();const btn=e.submitter;btn.disabled=true;try{const p=Object.fromEntries(new FormData(e.target).entries());await api({...p,action,email:S.email});e.target.reset();await refresh();notice('Registro guardado correctamente en Google Sheets.')}catch(err){notice(err.message,true)}finally{btn.disabled=false}}
