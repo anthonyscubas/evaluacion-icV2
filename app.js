@@ -303,49 +303,144 @@ function mostrarEncuestasCompletadas() {
     }, 3000);
 }
 
-async function saveMatrix(full){const rows=[...$('matrixBody').querySelectorAll('tr[data-analyst]')],type=surveyType(),q=Q[type],period=$('surveyPeriod').value;
- const entries=rows.map(r=>({analista_id:r.dataset.analyst,answers:q.map((_,i)=>{const x=r.querySelector(`input[name="q_${CSS.escape(r.dataset.analyst)}_${i}"]:checked`);return x?Number(x.value):null}),comentario:r.querySelector('textarea').value})).filter(x=>x.answers.some(v=>v!==null));
- if(!entries.length){notice('Selecciona al menos una respuesta para guardar.',true);return}
- if(full&&entries.some(x=>x.answers.some(v=>v===null))){notice('Completa todas las preguntas de cada analista que empezaste a evaluar, o guarda como borrador.',true);return}
- const saveBtn=$('saveSurveys'),draftBtn=$('saveDrafts');saveBtn.disabled=draftBtn.disabled=true;
- let good=0;try{for(const e of entries){await api({action:'save',email:S.email,tipo:type,analista_id:e.analista_id,periodo:period,comentario:e.comentario,respuestas:JSON.stringify(e.answers)});good++}
- 
- await refresh();
- const analistasAsignados = surveyAnalysts();
- const estadosCompletos = [
-     'COMPLETA',
-     'COMPLETADO',
-     'FINALIZADA',
-     'FINALIZADO'
- ];
- const evaluacionesCompletas = (S.data?.evaluaciones || [])
-     .filter(e =>
-         String(e.tipo || '').trim().toUpperCase() === type &&
-         String(e.periodo || '').trim() === period &&
-         norm(e.evaluador) === norm(S.email) &&
-         estadosCompletos.includes(
-             String(e.estado || '').trim().toUpperCase()
-         )
-     );
- const idsCompletados = new Set(
-     evaluacionesCompletas.map(e => String(e.analista_id).trim())
- );
- const todosCompletados =
-     analistasAsignados.length > 0 &&
-     analistasAsignados.every(a =>
-         idsCompletados.has(String(a.id).trim())
-     );
- if (full && good === entries.length && todosCompletados) {
-     mostrarEncuestasCompletadas();
- } else {
-     notice(`${good} evaluación(es) guardada(s)`);
-     if (good === entries.length) {
-         mostrarMensajeGuardado();
-     }
- }
- }
- catch(err){notice(`Se guardaron ${good} de ${entries.length}. Error: ${err.message}`,true)}
- finally{saveBtn.disabled=draftBtn.disabled=false}}
+
+async function saveMatrix(full) {
+    const rows = [
+        ...$('matrixBody').querySelectorAll('tr[data-analyst]')
+    ];
+
+    const type = surveyType();
+    const q = Q[type];
+    const period = $('surveyPeriod').value;
+
+    const entries = rows.map(r => ({
+        analista_id: r.dataset.analyst,
+        answers: q.map((_, i) => {
+            const x = r.querySelector(
+                `input[name="q_${CSS.escape(r.dataset.analyst)}_${i}"]:checked`
+            );
+            return x ? Number(x.value) : null;
+        }),
+        comentario: r.querySelector('textarea').value
+    })).filter(x => x.answers.some(v => v !== null));
+
+    if (!entries.length) {
+        notice('Selecciona al menos una respuesta para guardar.', true);
+        return;
+    }
+
+    if (full && entries.some(x => x.answers.some(v => v === null))) {
+        notice('Completa todas las preguntas antes de finalizar.', true);
+        return;
+    }
+
+    const saveBtn = $('saveSurveys');
+    const draftBtn = $('saveDrafts');
+
+    saveBtn.disabled = true;
+    draftBtn.disabled = true;
+
+    let good = 0;
+    const guardados = new Set();
+
+    try {
+        // 1. GUARDAR RESPUESTAS
+        for (const e of entries) {
+            await api({
+                action: 'save',
+                email: S.email,
+                tipo: type,
+                analista_id: e.analista_id,
+                periodo: period,
+                comentario: e.comentario,
+                respuestas: JSON.stringify(e.answers)
+            });
+
+            good++;
+
+            if (full) {
+                guardados.add(String(e.analista_id).trim());
+            }
+        }
+
+        // 2. ACTUALIZAR DATOS
+        await refresh();
+
+        // 3. OBTENER ANALISTAS ASIGNADOS
+        const asignados = surveyAnalysts();
+
+        // 4. OBTENER EVALUACIONES COMPLETADAS
+        const estadosValidos = [
+            'COMPLETA',
+            'COMPLETADO',
+            'COMPLETADA',
+            'FINALIZADA',
+            'FINALIZADO'
+        ];
+
+        const evaluaciones = S.data?.evaluaciones || [];
+
+        const completados = new Set(guardados);
+
+        for (const ev of evaluaciones) {
+            const mismoTipo =
+                String(ev.tipo || '').trim().toUpperCase() === type;
+
+            const mismoPeriodo =
+                String(ev.periodo || '').trim() === period;
+
+            const mismoEvaluador =
+                norm(ev.evaluador) === norm(S.email);
+
+            const estadoValido = estadosValidos.includes(
+                String(ev.estado || '').trim().toUpperCase()
+            );
+
+            if (
+                mismoTipo &&
+                mismoPeriodo &&
+                mismoEvaluador &&
+                estadoValido
+            ) {
+                completados.add(
+                    String(ev.analista_id).trim()
+                );
+            }
+        }
+
+        // 5. COMPROBAR TODOS LOS CUESTIONARIOS
+        const todosCompletados =
+            asignados.length > 0 &&
+            asignados.every(a =>
+                completados.has(String(a.id).trim())
+            );
+
+        console.log('Analistas asignados:', asignados.length);
+        console.log('Cuestionarios completados:', completados.size);
+        console.log('Todos completados:', todosCompletados);
+
+        // 6. FINALIZAR Y CERRAR SESIÓN
+        if (full && todosCompletados) {
+            mostrarEncuestasCompletadas();
+            return;
+        }
+
+        notice(`${good} evaluación(es) guardada(s)`);
+
+        if (good === entries.length) {
+            mostrarMensajeGuardado();
+        }
+
+    } catch (err) {
+        notice(
+            `Se guardaron ${good} de ${entries.length}. Error: ${err.message}`,
+            true
+        );
+    } finally {
+        saveBtn.disabled = false;
+        draftBtn.disabled = false;
+    }
+}
 async function saveAdmin(e,action){e.preventDefault();const btn=e.submitter;btn.disabled=true;try{const p=Object.fromEntries(new FormData(e.target).entries());await api({...p,action,email:S.email});e.target.reset();await refresh();notice('Registro guardado correctamente en Google Sheets.')}catch(err){notice(err.message,true)}finally{btn.disabled=false}}
 function exportCsv(){const rows=[...$('historyRows').querySelectorAll('tr')].filter(r=>r.children.length===7).map(r=>[...r.children].map(td=>td.textContent));
  const data=[['Fecha','Periodo','Analista','Evaluación','Evaluador','Estado','Puntaje'],...rows].map(r=>r.map(s=>'"'+String(s).replace(/"/g,'""')+'"').join(',')).join('\r\n');
