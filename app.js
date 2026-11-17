@@ -239,16 +239,109 @@ function mostrarMensajeGuardado() {
         mensaje.hidden = true;
     }, 3500);
 }
+
+function mostrarEncuestasCompletadas() {
+    if (document.getElementById('pantallaCompletada')) return;
+
+    const pantalla = document.createElement('div');
+    pantalla.id = 'pantallaCompletada';
+
+    pantalla.style.cssText = `
+        position: fixed;
+        inset: 0;
+        z-index: 999999;
+        background: rgba(15, 23, 42, 0.88);
+        backdrop-filter: blur(12px);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+    `;
+
+    pantalla.innerHTML = `
+        <div style="
+            background: white;
+            padding: 48px 35px;
+            border-radius: 24px;
+            text-align: center;
+            max-width: 440px;
+            width: 100%;
+            box-shadow: 0 25px 80px rgba(0,0,0,.25);
+        ">
+            <div style="
+                width: 85px;
+                height: 85px;
+                background: #dcfce7;
+                color: #16a34a;
+                border-radius: 50%;
+                margin: 0 auto 25px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 45px;
+            ">✓</div>
+
+            <h2 style="color:#0f172a;font-size:26px;">
+                ¡Encuestas Completadas!
+            </h2>
+
+            <p style="color:#475569;margin-top:12px;">
+                Todas las evaluaciones han sido
+                guardadas correctamente.
+            </p>
+
+            <p style="color:#64748b;margin-top:25px;font-size:13px;">
+                Cerrando sesión y regresando al inicio...
+            </p>
+        </div>
+    `;
+
+    document.body.appendChild(pantalla);
+
+    setTimeout(() => {
+        window.location.reload();
+    }, 3000);
+}
+
 async function saveMatrix(full){const rows=[...$('matrixBody').querySelectorAll('tr[data-analyst]')],type=surveyType(),q=Q[type],period=$('surveyPeriod').value;
  const entries=rows.map(r=>({analista_id:r.dataset.analyst,answers:q.map((_,i)=>{const x=r.querySelector(`input[name="q_${CSS.escape(r.dataset.analyst)}_${i}"]:checked`);return x?Number(x.value):null}),comentario:r.querySelector('textarea').value})).filter(x=>x.answers.some(v=>v!==null));
  if(!entries.length){notice('Selecciona al menos una respuesta para guardar.',true);return}
  if(full&&entries.some(x=>x.answers.some(v=>v===null))){notice('Completa todas las preguntas de cada analista que empezaste a evaluar, o guarda como borrador.',true);return}
  const saveBtn=$('saveSurveys'),draftBtn=$('saveDrafts');saveBtn.disabled=draftBtn.disabled=true;
  let good=0;try{for(const e of entries){await api({action:'save',email:S.email,tipo:type,analista_id:e.analista_id,periodo:period,comentario:e.comentario,respuestas:JSON.stringify(e.answers)});good++}
+ 
  await refresh();
- notice(`${good} evaluación(es) guardada(s)`);
- if (good === entries.length) {
-     mostrarMensajeGuardado();
+ const analistasAsignados = surveyAnalysts();
+ const estadosCompletos = [
+     'COMPLETA',
+     'COMPLETADO',
+     'FINALIZADA',
+     'FINALIZADO'
+ ];
+ const evaluacionesCompletas = (S.data?.evaluaciones || [])
+     .filter(e =>
+         String(e.tipo || '').trim().toUpperCase() === type &&
+         String(e.periodo || '').trim() === period &&
+         norm(e.evaluador) === norm(S.email) &&
+         estadosCompletos.includes(
+             String(e.estado || '').trim().toUpperCase()
+         )
+     );
+ const idsCompletados = new Set(
+     evaluacionesCompletas.map(e => String(e.analista_id).trim())
+ );
+ const todosCompletados =
+     analistasAsignados.length > 0 &&
+     analistasAsignados.every(a =>
+         idsCompletados.has(String(a.id).trim())
+     );
+ if (full && good === entries.length && todosCompletados) {
+     mostrarEncuestasCompletadas();
+ } else {
+     notice(`${good} evaluación(es) guardada(s)`);
+     if (good === entries.length) {
+         mostrarMensajeGuardado();
+     }
  }
  }
  catch(err){notice(`Se guardaron ${good} de ${entries.length}. Error: ${err.message}`,true)}
