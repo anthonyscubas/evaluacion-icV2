@@ -304,6 +304,53 @@ function mostrarEncuestasCompletadas() {
 }
 
 
+function iniciarCargaGuardado(total) {
+    const overlay = document.getElementById('overlayGuardado');
+    overlay.hidden = false;
+
+    document.getElementById('loadingTitulo').textContent =
+        'Guardando evaluaciones';
+
+    document.getElementById('loadingDescripcion').textContent =
+        `Preparando el registro de ${total} evaluación(es)...`;
+
+    document.getElementById('loadingBarra').style.width = '0%';
+    document.getElementById('loadingPorcentaje').textContent = '0%';
+}
+
+function actualizarCargaGuardado(actual, total) {
+    const porcentaje = Math.round((actual / total) * 100);
+
+    document.getElementById('loadingBarra').style.width =
+        porcentaje + '%';
+
+    document.getElementById('loadingPorcentaje').textContent =
+        porcentaje + '%';
+
+    document.getElementById('loadingDescripcion').textContent =
+        `Registrando evaluación ${actual} de ${total}...`;
+}
+
+function finalizarCargaGuardado() {
+    document.getElementById('loadingTitulo').textContent =
+        '¡Evaluaciones guardadas correctamente!';
+
+    document.getElementById('loadingDescripcion').textContent =
+        'Todas las respuestas enviadas fueron registradas.';
+
+    document.getElementById('loadingBarra').style.width = '100%';
+    document.getElementById('loadingPorcentaje').textContent = '100%';
+
+    const spinner = document.querySelector('.ic-loading-spinner');
+    spinner.style.animationPlayState = 'paused';
+}
+
+function cerrarCargaGuardado() {
+    document.getElementById('overlayGuardado').hidden = true;
+    document.querySelector('.ic-loading-spinner')
+        .style.animationPlayState = 'running';
+}
+
 async function saveMatrix(full) {
     const rows = [
         ...$('matrixBody').querySelectorAll('tr[data-analyst]')
@@ -339,6 +386,7 @@ async function saveMatrix(full) {
 
     saveBtn.disabled = true;
     draftBtn.disabled = true;
+    iniciarCargaGuardado(entries.length);
 
     let good = 0;
     const guardados = new Set();
@@ -357,14 +405,28 @@ async function saveMatrix(full) {
             });
 
             good++;
+            actualizarCargaGuardado(good, entries.length);
 
             if (full) {
                 guardados.add(String(e.analista_id).trim());
             }
         }
 
-        // 2. ACTUALIZAR DATOS
-        await refresh();
+       // 2. ACTUALIZAR DATOS
+       document.getElementById('loadingTitulo').textContent =
+           'Verificando evaluaciones';
+       
+       document.getElementById('loadingDescripcion').textContent =
+           'Comprobando que todas las respuestas se registraron correctamente...';
+       
+       await refresh();
+       
+       finalizarCargaGuardado();
+       
+       await new Promise(resolve => setTimeout(resolve, 900));
+       
+       cerrarCargaGuardado();
+
 
         // 3. OBTENER ANALISTAS ASIGNADOS
         const asignados = surveyAnalysts();
@@ -432,15 +494,21 @@ async function saveMatrix(full) {
         }
 
     } catch (err) {
+        cerrarCargaGuardado();
+    
         notice(
             `Se guardaron ${good} de ${entries.length}. Error: ${err.message}`,
             true
         );
+    
     } finally {
+        cerrarCargaGuardado();
+    
         saveBtn.disabled = false;
         draftBtn.disabled = false;
     }
 }
+
 async function saveAdmin(e,action){e.preventDefault();const btn=e.submitter;btn.disabled=true;try{const p=Object.fromEntries(new FormData(e.target).entries());await api({...p,action,email:S.email});e.target.reset();await refresh();notice('Registro guardado correctamente en Google Sheets.')}catch(err){notice(err.message,true)}finally{btn.disabled=false}}
 function exportCsv(){const rows=[...$('historyRows').querySelectorAll('tr')].filter(r=>r.children.length===7).map(r=>[...r.children].map(td=>td.textContent));
  const data=[['Fecha','Periodo','Analista','Evaluación','Evaluador','Estado','Puntaje'],...rows].map(r=>r.map(s=>'"'+String(s).replace(/"/g,'""')+'"').join(',')).join('\r\n');
