@@ -246,7 +246,7 @@ async function saveMatrix(full){const rows=[...$('matrixBody').querySelectorAll(
  const saveBtn=$('saveSurveys'),draftBtn=$('saveDrafts');saveBtn.disabled=draftBtn.disabled=true;
  let good=0;try{for(const e of entries){await api({action:'save',email:S.email,tipo:type,analista_id:e.analista_id,periodo:period,comentario:e.comentario,respuestas:JSON.stringify(e.answers)});good++}
  await refresh();
- notice(`${good} evaluación(es) guardada(s) en Google Sheets.`);
+ notice(`${good} evaluación(es) guardada(s)`);
  if (good === entries.length) {
      mostrarMensajeGuardado();
  }
