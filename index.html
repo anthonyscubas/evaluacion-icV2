@@ -676,5 +676,21 @@
     });
   })();
   </script>
+  
+  <div id="overlayGuardado" class="ic-loading-overlay" hidden>
+    <div class="ic-loading-card" role="status" aria-live="polite">
+      <div class="ic-loading-spinner"></div>
+      <h3 id="loadingTitulo">Guardando evaluaciones</h3>
+      <p id="loadingDescripcion">
+        Estamos registrando tus respuestas. Por favor, espera.
+      </p>
+      <div class="ic-loading-track">
+        <div id="loadingBarra"></div>
+      </div>
+      <span id="loadingPorcentaje">0%</span>
+      <small>No cierres esta ventana durante el proceso.</small>
+    </div>
+  </div>
+
 </body>
 </html>
