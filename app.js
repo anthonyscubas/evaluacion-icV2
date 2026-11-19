@@ -223,6 +223,11 @@ function drawMatrix() {
     const type = surveyType();
     const q = Q[type];
     const list = surveyAnalysts();
+    console.table(list.map(a => ({
+       id: a.id,
+       nombre: a.nombre,
+       canal: a.canal
+    })));
     const history = S.data.evaluaciones || [];
     const period = $('surveyPeriod').value;
 
