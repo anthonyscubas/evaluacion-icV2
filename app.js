@@ -269,9 +269,41 @@ function surveyAnalysts() {
     return [];
 
 }
+function controlarDisponibilidad() {
+  const tipo = surveyType();
+  const config = (S.data?.configEvaluaciones || [])
+    .find(c => c.tipo === tipo);
 
+  const hoy = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/Lima',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  }).format(new Date());
+
+  let motivo = '';
+
+  if (!config) {
+    motivo = 'El administrador todavía no configuró las fechas.';
+  } else if (!config.habilitado) {
+    motivo = 'El formulario está deshabilitado.';
+  } else if (hoy < config.fecha_inicio) {
+    motivo = `Disponible desde el ${config.fecha_inicio}.`;
+  } else if (hoy > config.fecha_fin) {
+    motivo = `El periodo finalizó el ${config.fecha_fin}.`;
+  }
+
+  const cerrado = Boolean(motivo);
+
+  $('surveyClosed').hidden = !cerrado;
+  $('surveyClosedMessage').textContent = motivo;
+  $('surveyForm').hidden = cerrado;
+
+  return !cerrado;
+}
 function drawMatrix() {
     if (!S.data) return;
+    if (!controlarDisponibilidad()) return;
 
     const type = surveyType();
     const q = Q[type];
@@ -517,7 +549,10 @@ function cerrarCargaGuardado() {
 }
 
 async function saveMatrix(full) {
-    
+    if (!controlarDisponibilidad()) {
+      notice('El periodo de evaluación está cerrado.', true);
+      return;
+    }
     const type = surveyType();
     const q = Q[type];
     const period = $('surveyPeriod').value;
