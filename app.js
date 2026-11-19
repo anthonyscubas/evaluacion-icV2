@@ -33,7 +33,7 @@ sc.onerror=()=>finish(Error('No se pudo conectar a Apps Script'));
 sc.src=url+'?'+new URLSearchParams({...p,callback:cb,_:Date.now()});document.head.appendChild(sc);
 })}
 const permissions={
- ADMINISTRADOR:[['dashboard','▦','Resumen ejecutivo'],['admin:analistas','◎','Analistas'],['admin:coordinadores','◈','Coordinadores'],['admin:controllers','◉','Controllers'],['admin:alicorp','▣','Alicorp'],['admin:canales','▦','Canales'],['history','▤','Histórico']],
+ ADMINISTRADOR:[['dashboard','▦','Resumen ejecutivo'],['schedule','▣','Fechas de evaluación'],['admin:analistas','◎','Analistas'],['admin:coordinadores','◈','Coordinadores'],['admin:controllers','◉','Controllers'],['admin:alicorp','▣','Alicorp'],['admin:canales','▦','Canales'],['history','▤','Histórico']],
  COORDINADOR:[['dashboard','▦','Resumen ejecutivo']],
  CONTROLLER:[['survey','▤','Evaluación interna']],
  ALICORP:[['survey','▤','Evaluación']]
@@ -46,6 +46,7 @@ function navigate(key){
  document.querySelectorAll('#menu a').forEach(x=>x.classList.toggle('active',x.dataset.screen===key));
  if(view==='admin')drawAdmin(key.split(':')[1]);
  if(view==='survey')drawMatrix();
+ if(view==='schedule')drawSchedule();
  if(view==='dashboard')drawDashboard();
  if(view==='history')drawHistory();
  const item=allowed.find(x=>x[0]===key);
@@ -195,6 +196,58 @@ function drawAdmin(tab){S.adminTab=tab;$('adminTitle').textContent=adminTitles[t
  let values=analyst?(S.data?.analistas||[]):channel?(S.data?.canales||[]):(S.data?.usuarios||[]).filter(u=>String(u.rol).toUpperCase()===(tab==='coordinadores'?'COORDINADOR':tab==='controllers'?'CONTROLLER':'ALICORP'));
  $('adminList').innerHTML=values.map(a=>`<div class="ic-list-row"><strong>${esc(a.nombre)}</strong><small>${esc(analyst?a.canal+' · '+(a.correo||'Sin correo'):channel?'Canal activo':a.correo)}</small></div>`).join('')||'<p class="ic-muted">No hay registros todavía.</p>';
 }
+      function drawSchedule() {
+  const tipo = $('scheduleType').value;
+  const config = (S.data?.configEvaluaciones || [])
+    .find(c => c.tipo === tipo);
+
+  $('scheduleStart').value = config?.fecha_inicio || '';
+  $('scheduleEnd').value = config?.fecha_fin || '';
+  $('scheduleEnabled').checked = config?.habilitado ?? false;
+
+  $('scheduleStatus').textContent = config
+    ? 'Configuración actual cargada.'
+    : 'Todavía no se ha configurado este formulario.';
+}
+
+async function saveSchedule(e) {
+  e.preventDefault();
+
+  const btn = e.submitter;
+  const inicio = $('scheduleStart').value;
+  const fin = $('scheduleEnd').value;
+
+  if (inicio > fin) {
+    $('scheduleStatus').textContent =
+      'La fecha de cierre no puede ser anterior al inicio.';
+    return;
+  }
+
+  btn.disabled = true;
+  $('scheduleStatus').textContent = 'Guardando configuración...';
+
+  try {
+    await api({
+      action: 'saveConfigEvaluacion',
+      email: S.email,
+      tipo: $('scheduleType').value,
+      fecha_inicio: inicio,
+      fecha_fin: fin,
+      habilitado: String($('scheduleEnabled').checked)
+    });
+
+    await refresh();
+    $('scheduleStatus').textContent =
+      'Configuración guardada correctamente.';
+  } catch (err) {
+    $('scheduleStatus').textContent = err.message;
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+$('scheduleType').addEventListener('change', drawSchedule);
+$('scheduleForm').addEventListener('submit', saveSchedule);
 function surveyType(){return S.role==='CONTROLLER'?'INTERNA':'ALICORP'}
 function surveyAnalysts() {
     const analistas = S.data?.analistas || [];
