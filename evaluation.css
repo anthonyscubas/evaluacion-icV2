@@ -149,3 +149,26 @@ button{cursor:pointer}
     min-width: 100%;
     table-layout: auto !important;
 }
+
+/* Mostrar los nombres de TODOS los analistas */
+#survey .matrix-table thead th.matrix-person {
+    display: table-cell !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    color: #173e55 !important;
+    background: #eaf0f5 !important;
+    text-align: left !important;
+    vertical-align: middle !important;
+    padding: 14px 10px !important;
+    min-width: 280px;
+    white-space: normal !important;
+}
+
+/* Mostrar también el canal */
+#survey .matrix-table thead th.matrix-person small {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    color: #53677d !important;
+    margin-top: 4px;
+}
