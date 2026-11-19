@@ -138,3 +138,14 @@ button{cursor:pointer}
 #survey .matrix-table thead th:first-child {
     z-index: 3;
 }
+#survey .matrix-scroll {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto !important;
+}
+
+#survey .matrix-table {
+    width: max-content !important;
+    min-width: 100%;
+    table-layout: auto !important;
+}
