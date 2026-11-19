@@ -292,7 +292,52 @@
             </section>
           </div>
         </section>
-
+        <section id="schedule" class="ic-screen" hidden>
+          <div class="admin-page">
+            <header class="admin-heading">
+              <div>
+                <span class="eyebrow">ADMINISTRACIÓN</span>
+                <h1>Fechas de evaluación</h1>
+                <p>Controla la apertura y cierre de los formularios.</p>
+              </div>
+            </header>
+        
+            <section class="ic-card">
+              <h2>Configurar disponibilidad</h2>
+        
+              <form id="scheduleForm" class="admin-form">
+                <label>
+                  Formulario
+                  <select id="scheduleType" required>
+                    <option value="INTERNA">Controller (Interna)</option>
+                    <option value="ALICORP">Alicorp</option>
+                  </select>
+                </label>
+        
+                <label>
+                  Fecha de inicio
+                  <input id="scheduleStart" type="date" required>
+                </label>
+        
+                <label>
+                  Fecha de cierre
+                  <input id="scheduleEnd" type="date" required>
+                </label>
+        
+                <label class="schedule-checkbox">
+                  <input id="scheduleEnabled" type="checkbox" checked>
+                  Habilitar formulario durante estas fechas
+                </label>
+        
+                <button class="primary" type="submit">
+                  Guardar configuración
+                </button>
+        
+                <p id="scheduleStatus" role="status"></p>
+              </form>
+            </section>
+          </div>
+        </section>
         <section id="history" class="ic-screen" hidden>
           <div class="admin-page">
             <header class="admin-heading">
