@@ -96,3 +96,45 @@ button{cursor:pointer}
 #survey .matrix-question-number {
     display: none !important;
 }
+
+/* Permitir desplazamiento horizontal de la matriz */
+#survey .matrix-wrap {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto !important;
+    overflow-y: auto;
+    display: block;
+}
+
+/* La tabla crece según la cantidad de analistas */
+#survey .matrix-table {
+    width: max-content !important;
+    min-width: 100%;
+    table-layout: auto !important;
+}
+
+/* Primera columna: preguntas */
+#survey .matrix-table .matrix-question {
+    min-width: 320px;
+    width: 320px;
+}
+
+/* Columnas de analistas */
+#survey .matrix-table .matrix-person,
+#survey .matrix-table .matrix-score-cell {
+    min-width: 280px;
+    width: 280px;
+}
+
+/* Mantener las preguntas visibles al desplazarse */
+#survey .matrix-table th:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    background: #ffffff;
+}
+
+/* Encabezado superior izquierdo */
+#survey .matrix-table thead th:first-child {
+    z-index: 3;
+}
