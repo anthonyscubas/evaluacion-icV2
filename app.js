@@ -68,6 +68,10 @@ async function login(e){e.preventDefault();const btn=e.submitter||$('loginForm')
      $('surveyRole').hidden = S.role === 'ALICORP';
      drawNav();
  navigate((permissions[S.role]||[])[0][0]);
+
+ if (S.role === 'ALICORP' || S.role === 'CONTROLLER') {
+   abrirGuia();
+ }
  try{await refresh()}catch(err){notice('Ingresaste, pero no se pudieron cargar los datos: '+err.message,true)}
  }catch(err){const el=$('loginForm').querySelector('.ic-error')||document.createElement('p');el.className='ic-error';el.textContent=err.message;$('loginForm').append(el)}
  finally{btn.disabled=false;btn.textContent='Ver mi módulo →'}}
@@ -248,6 +252,52 @@ async function saveSchedule(e) {
 
 $('scheduleType').addEventListener('change', drawSchedule);
 $('scheduleForm').addEventListener('submit', saveSchedule);
+      
+function abrirGuia() {
+  if (!['CONTROLLER', 'ALICORP'].includes(S.role)) return;
+
+  const tipo = surveyType();
+  const preguntas = Q[tipo];
+  const total = preguntas.reduce((suma, p) => suma + p[2], 0);
+
+  $('guiaTitulo').textContent =
+    tipo === 'INTERNA'
+      ? 'Evaluación Controller'
+      : 'Evaluación Alicorp';
+
+  $('guiaDescripcion').textContent =
+    tipo === 'INTERNA'
+      ? 'Evaluación interna del desempeño de los analistas IC.'
+      : 'Evaluación del desempeño de los analistas IC por parte del cliente.';
+
+  $('guiaPreguntas').innerHTML = preguntas.map((p, i) => `
+    <tr>
+      <td>${i + 1}. ${esc(p[1])}</td>
+      <td><strong>${p[2]} pts</strong></td>
+    </tr>
+  `).join('');
+
+  $('guiaTotal').textContent = total + ' puntos';
+
+  const ejemplo = preguntas[0];
+  const puntos = (4 / 5) * ejemplo[2];
+
+  $('guiaEjemplo').textContent =
+    `Ejemplo: Si una pregunta vale ${ejemplo[2]} puntos ` +
+    `y seleccionas 4 (Casi siempre), obtienes ` +
+    `${puntos.toFixed(1)} puntos.`;
+
+  $('modalGuia').showModal();
+}
+
+function cerrarGuiaEvaluacion() {
+  $('modalGuia').close();
+}
+
+$('btnVerGuia').addEventListener('click', abrirGuia);
+$('cerrarGuia').addEventListener('click', cerrarGuiaEvaluacion);
+$('entendiGuia').addEventListener('click', cerrarGuiaEvaluacion);
+
 function surveyType(){return S.role==='CONTROLLER'?'INTERNA':'ALICORP'}
 function surveyAnalysts() {
     const analistas = S.data?.analistas || [];
