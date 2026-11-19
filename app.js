@@ -274,12 +274,18 @@ function controlarDisponibilidad() {
   const config = (S.data?.configEvaluaciones || [])
     .find(c => c.tipo === tipo);
 
-  const hoy = new Intl.DateTimeFormat('en-CA', {
-    timeZone: 'America/Lima',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit'
-  }).format(new Date());
+  const partes = Object.fromEntries(
+    new Intl.DateTimeFormat('en-US', {
+      timeZone: 'America/Lima',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    }).formatToParts(new Date())
+      .filter(p => p.type !== 'literal')
+      .map(p => [p.type, p.value])
+  );
+  
+  const hoy = `${partes.year}-${partes.month}-${partes.day}`;
 
   let motivo = '';
 
