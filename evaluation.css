@@ -54,3 +54,41 @@ button{cursor:pointer}
 #workspace .enterprise-logout{width:100%;text-align:left}
 @media(max-width:820px){#workspace.enterprise-layout{display:block}#workspace .enterprise-sidebar{position:fixed;left:0;top:0;transform:translateX(-110%);transition:transform .2s;width:265px}body.ic-menu-open #workspace .enterprise-sidebar{transform:translateX(0)}#workspace .enterprise-main{padding:16px}#workspace .dash-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}#workspace .admin-layout-two{grid-template-columns:1fr}}
 @media(max-width:480px){#workspace .dash-kpis{grid-template-columns:1fr}#workspace .enterprise-main{padding:12px}#workspace .admin-module-nav{overflow-x:auto;flex-wrap:nowrap}}
+
+/* Matriz transpuesta: preguntas en filas */
+#survey .matrix-table .matrix-question {
+    min-width: 300px;
+    width: 300px;
+    max-width: 300px;
+    text-align: left;
+    white-space: normal;
+}
+
+/* Analistas en columnas */
+#survey .matrix-table .matrix-person {
+    min-width: 240px;
+    width: 240px;
+    max-width: 240px;
+    text-align: center;
+    white-space: normal;
+}
+
+/* Celdas de calificación */
+#survey .matrix-table .matrix-score-cell {
+    min-width: 240px;
+    width: 240px;
+    text-align: center;
+}
+
+/* Preguntas visibles al desplazarse horizontalmente */
+#survey .matrix-table th:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    background: #fff;
+}
+
+/* Encabezado superior izquierdo */
+#survey .matrix-table thead th:first-child {
+    z-index: 3;
+}
