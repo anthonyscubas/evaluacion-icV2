@@ -290,7 +290,7 @@ function controlarDisponibilidad() {
   let motivo = '';
 
   if (!config) {
-    motivo = 'El administrador todavía no configuró las fechas.';
+    motivo = 'El Formulario expiro, intente nuevamente el siguiente mes.';
   } else if (!config.habilitado) {
     motivo = 'El formulario está deshabilitado.';
   } else if (hoy < config.fecha_inicio) {
