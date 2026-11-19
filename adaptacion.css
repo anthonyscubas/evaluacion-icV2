@@ -785,3 +785,58 @@ a:focus-visible {
   color: #334155;
   font-size: 13px;
 }
+/* Configuración de fechas */
+#schedule .ic-card {
+    max-width: 760px;
+    padding: 28px;
+}
+
+#schedule .admin-form {
+    margin-top: 22px;
+}
+
+#schedule .admin-form input[type="date"],
+#schedule .admin-form select {
+    width: 100%;
+    min-height: 46px;
+}
+
+#schedule .schedule-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+#schedule .schedule-checkbox input {
+    width: 18px;
+    height: 18px;
+}
+
+#scheduleStatus {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* Mensaje cuando el formulario está cerrado */
+#survey .survey-closed {
+    padding: 45px 25px;
+    text-align: center;
+    background: #f1f5f9;
+    border: 1px solid #cbd5e1;
+    border-radius: 14px;
+}
+
+#survey .survey-closed h2 {
+    color: #173e55;
+    margin-bottom: 12px;
+}
+
+#survey .survey-closed p {
+    color: #64748b;
+}
+
+/* Respetar el atributo hidden */
+#survey .survey-closed[hidden],
+#survey .survey-form[hidden] {
+    display: none !important;
+}
