@@ -501,6 +501,11 @@
         </section>
 
         <section id="survey" class="ic-screen" hidden>
+          <div class="guia-toolbar">
+            <button type="button" id="btnVerGuia" class="btn-ver-guia">
+              📖 VER GUÍA
+            </button>
+          </div>
           <section class="survey-shell matrix-shell">
             <header class="survey-head">
               <div>
@@ -661,6 +666,79 @@
       </div>
     </section>
   </dialog>
+  
+  <!-- VENTANA EMERGENTE DE GUÍA DE EVALUACIÓN -->
+  <dialog id="modalGuia" class="modal-guia">
+    <div class="guia-contenido">
+  
+      <div class="guia-encabezado">
+        <div>
+          <span class="guia-etiqueta">GUÍA DE EVALUACIÓN</span>
+          <h2 id="guiaTitulo"></h2>
+          <p id="guiaDescripcion"></p>
+        </div>
+  
+        <button type="button" id="cerrarGuia"
+                class="guia-cerrar" aria-label="Cerrar guía">
+          &times;
+        </button>
+      </div>
+  
+      <div class="guia-cuerpo">
+        <h3>¿Qué significa cada calificación?</h3>
+  
+        <div class="guia-escala">
+          <div><b>1</b><span>Nunca</span></div>
+          <div><b>2</b><span>Pocas veces</span></div>
+          <div><b>3</b><span>A veces</span></div>
+          <div><b>4</b><span>Casi siempre</span></div>
+          <div><b>5</b><span>Siempre</span></div>
+        </div>
+  
+        <h3>Distribución de puntos</h3>
+  
+        <div class="guia-tabla-scroll">
+          <table class="guia-tabla">
+            <thead>
+              <tr>
+                <th>Criterio de evaluación</th>
+                <th>Puntaje máximo</th>
+              </tr>
+            </thead>
+            <tbody id="guiaPreguntas"></tbody>
+          </table>
+        </div>
+  
+        <div class="guia-total">
+          <strong>PUNTAJE MÁXIMO</strong>
+          <strong id="guiaTotal"></strong>
+        </div>
+  
+        <h3>¿Cómo se calcula el puntaje?</h3>
+  
+        <p>
+          Cada pregunta tiene un peso asignado.
+          La calificación seleccionada determina
+          los puntos obtenidos.
+        </p>
+  
+        <div class="guia-formula">
+          (Calificación ÷ 5) × Puntaje máximo
+        </div>
+  
+        <p id="guiaEjemplo"></p>
+      </div>
+  
+      <div class="guia-pie">
+        <button type="button" id="entendiGuia"
+                class="btn-entendi">
+          Entendido, comenzar evaluación
+        </button>
+      </div>
+  
+    </div>
+  </dialog>
+
   <script src="./config.js"></script>
   <script src="./app.js"></script>
   <script>
