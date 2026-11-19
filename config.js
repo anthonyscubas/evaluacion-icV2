@@ -1,1 +1,1 @@
-window.IC_CONFIG = { scriptUrl: "https://script.google.com/macros/s/AKfycbwU8D4qPQWpzbfKZbLlwKOx5q2pAkNJtTLi-WqAnNootICJPnD7JFIhF0XerQniNKfL/exec" };
+window.IC_CONFIG = { scriptUrl: "https://script.google.com/macros/s/AKfycbwVCkiDoOyyK4nPe4Om6iwPFUZUUu8gI99GKwksMd7gvajCeteuIYLJz-TcNm0YYhqw/exec" };
