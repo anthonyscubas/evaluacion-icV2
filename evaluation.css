@@ -92,3 +92,7 @@ button{cursor:pointer}
 #survey .matrix-table thead th:first-child {
     z-index: 3;
 }
+/* Ocultar número de pregunta y puntaje */
+#survey .matrix-question-number {
+    display: none !important;
+}
