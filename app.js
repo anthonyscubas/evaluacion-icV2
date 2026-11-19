@@ -216,29 +216,136 @@ function surveyAnalysts() {
     return [];
 
 }
-function drawMatrix(){if(!S.data)return;const type=surveyType(),q=Q[type],list=surveyAnalysts();
- $('surveyKicker').textContent=(type==='INTERNA'?'EVALUACIÓN ANALISTAS':'EVALUACIÓN ANALISTAS');
- $('surveyTitle').textContent=type==='INTERNA'?'Matriz de evaluación interna de analistas':'Matriz de evaluación de analistas';
- 
- $('matrixHead').innerHTML='<tr><th class="matrix-person">Analista</th><th class="matrix-area">Área / canal</th>'+q.map((x,i)=>`<th class="matrix-question"><span class="matrix-question-number">P${i+1} · ${x[2]} PTS</span><span class="matrix-question-title">${esc(x[1])}</span></th>`).join('')+'<th class="matrix-area">Comentario</th></tr>';
- const history=S.data.evaluaciones||[],period=$('surveyPeriod').value;
- $('matrixBody').innerHTML=list.map(a=>{const prev=history.find(e=>String(e.analista_id)===String(a.id)&&e.periodo===period&&e.tipo===type&&norm(e.evaluador)===S.email);
- let answers=[];try{answers=JSON.parse(prev?.respuestas_json||'[]')}catch{}
- return `<tr data-analyst="${esc(a.id)}"><th class="matrix-person">${esc(a.nombre)}</th><td class="matrix-area">${esc(a.canal)}</td>`+q.map((item,i)=>`<td class="matrix-score-cell"><div class="matrix-options">${[1,2,3,4,5].map(v=>`<label title="${['Nunca','Pocas veces','A veces','Casi siempre','Siempre'][v-1]}"><input type="radio" name="q_${esc(a.id)}_${i}" value="${v}" ${answers[i]===v?'checked':''}><span>${v}</span></label>`).join('')}</div></td>`).join('')+`<td><textarea class="ic-comment" maxlength="400" rows="2" placeholder="Observación opcional">${esc(prev?.comentario||'')}</textarea></td></tr>`}).join('')||'<tr><td colspan="'+(q.length+3)+'">No hay analistas asignados. El administrador debe registrar analistas.</td></tr>';
- updateProgress();
+
+function drawMatrix() {
+    if (!S.data) return;
+
+    const type = surveyType();
+    const q = Q[type];
+    const list = surveyAnalysts();
+    const history = S.data.evaluaciones || [];
+    const period = $('surveyPeriod').value;
+
+    $('surveyKicker').textContent = 'EVALUACIÓN ANALISTAS';
+    $('surveyTitle').textContent = type === 'INTERNA'
+        ? 'Matriz de evaluación interna de analistas'
+        : 'Matriz de evaluación de analistas';
+
+    // Encabezados: preguntas primero, analistas después
+    $('matrixHead').innerHTML = `
+        <tr>
+            <th class="matrix-question">Preguntas</th>
+            ${list.map(a => `
+                <th class="matrix-person">
+                    ${esc(a.nombre)}
+                    <small style="display:block">${esc(a.canal)}</small>
+                </th>
+            `).join('')}
+        </tr>
+    `;
+
+    const anteriores = {};
+
+    list.forEach(a => {
+        const prev = history.find(e =>
+            String(e.analista_id) === String(a.id) &&
+            e.periodo === period &&
+            e.tipo === type &&
+            norm(e.evaluador) === S.email
+        );
+
+        let answers = [];
+        try {
+            answers = JSON.parse(prev?.respuestas_json || '[]');
+        } catch {}
+
+        anteriores[a.id] = {
+            answers,
+            comentario: prev?.comentario || ''
+        };
+    });
+
+    // Filas: una por cada pregunta
+    const filas = q.map((item, i) => `
+        <tr>
+            <th class="matrix-question">
+                <span class="matrix-question-number">
+                    P${i + 1} · ${item[2]} PTS
+                </span>
+                <span class="matrix-question-title">
+                    ${esc(item[1])}
+                </span>
+            </th>
+
+            ${list.map(a => `
+                <td class="matrix-score-cell">
+                    <div class="matrix-options">
+                        ${[1, 2, 3, 4, 5].map(v => `
+                            <label title="${[
+                                'Nunca',
+                                'Pocas veces',
+                                'A veces',
+                                'Casi siempre',
+                                'Siempre'
+                            ][v - 1]}">
+                                <input
+                                    type="radio"
+                                    name="q_${esc(a.id)}_${i}"
+                                    value="${v}"
+                                    ${anteriores[a.id].answers[i] === v ? 'checked' : ''}
+                                >
+                                <span>${v}</span>
+                            </label>
+                        `).join('')}
+                    </div>
+                </td>
+            `).join('')}
+        </tr>
+    `).join('');
+
+    // Comentarios por analista
+    const comentarios = `
+        <tr>
+            <th class="matrix-question">Comentario</th>
+            ${list.map(a => `
+                <td>
+                    <textarea
+                        class="ic-comment"
+                        data-analyst="${esc(a.id)}"
+                        maxlength="400"
+                        rows="2"
+                        placeholder="Observación opcional"
+                    >${esc(anteriores[a.id].comentario)}</textarea>
+                </td>
+            `).join('')}
+        </tr>
+    `;
+
+    $('matrixBody').innerHTML = list.length
+        ? filas + comentarios
+        : '<tr><td>No hay analistas asignados.</td></tr>';
+
+    updateProgress();
 }
-function updateProgress(){const rows=[...$('matrixBody').querySelectorAll('tr[data-analyst]')],total=rows.length*Q[surveyType()].length,answered=rows.reduce((s,r)=>s+r.querySelectorAll('input:checked').length,0),pct=total?Math.round(answered/total*100):0;
- $('progressPct').textContent=pct+' %';$('progressBar').style.width=pct+'%';$('progressCount').textContent=`${answered} de ${total} respuestas seleccionadas`}
-let temporizadorGuardado;
-function mostrarMensajeGuardado() {
-    const mensaje = document.getElementById('mensajeGuardado');
-    if (!mensaje) return;
-    clearTimeout(temporizadorGuardado);
-    mensaje.hidden = false;
-    temporizadorGuardado = setTimeout(() => {
-        mensaje.hidden = true;
-    }, 3500);
+
+
+function updateProgress() {
+    const type = surveyType();
+    const total = surveyAnalysts().length * Q[type].length;
+
+    const answered = $('matrixBody')
+        .querySelectorAll('input[type="radio"]:checked').length;
+
+    const pct = total
+        ? Math.round(answered / total * 100)
+        : 0;
+
+    $('progressPct').textContent = pct + ' %';
+    $('progressBar').style.width = pct + '%';
+    $('progressCount').textContent =
+        `${answered} de ${total} respuestas seleccionadas`;
 }
+
 
 function mostrarEncuestasCompletadas() {
     if (document.getElementById('pantallaCompletada')) return;
@@ -352,24 +459,30 @@ function cerrarCargaGuardado() {
 }
 
 async function saveMatrix(full) {
-    const rows = [
-        ...$('matrixBody').querySelectorAll('tr[data-analyst]')
-    ];
-
+    
     const type = surveyType();
     const q = Q[type];
     const period = $('surveyPeriod').value;
+    const analistas = surveyAnalysts();
 
-    const entries = rows.map(r => ({
-        analista_id: r.dataset.analyst,
+    const entries = analistas.map(a => ({
+        analista_id: a.id,
+
         answers: q.map((_, i) => {
-            const x = r.querySelector(
-                `input[name="q_${CSS.escape(r.dataset.analyst)}_${i}"]:checked`
-            );
-            return x ? Number(x.value) : null;
+            const selector =
+                `input[name="q_${CSS.escape(String(a.id))}_${i}"]:checked`;
+
+            const input = $('matrixBody').querySelector(selector);
+
+            return input ? Number(input.value) : null;
         }),
-        comentario: r.querySelector('textarea').value
+
+        comentario: [...$('matrixBody').querySelectorAll(
+            'textarea[data-analyst]'
+        )].find(t => t.dataset.analyst === String(a.id))?.value || ''
+
     })).filter(x => x.answers.some(v => v !== null));
+
 
     if (!entries.length) {
         notice('Selecciona al menos una respuesta para guardar.', true);
