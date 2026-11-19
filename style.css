@@ -1942,3 +1942,84 @@ body {
         animation: none;
     }
 }
+
+/* CELDAS DE CALIFICACIÓN */
+#survey .matrix-table .matrix-score-cell {
+    min-width: 280px;
+    padding: 12px;
+    box-sizing: border-box;
+}
+
+/* CONTENEDOR DE BOTONES 1 AL 5 */
+#survey .matrix-table .matrix-options {
+    display: flex;
+    width: 100%;
+    gap: 6px;
+}
+
+/* CADA BOTÓN OCUPA EL MISMO ESPACIO */
+#survey .matrix-table .matrix-options label {
+    flex: 1;
+    min-width: 0;
+    cursor: pointer;
+    position: relative;
+}
+
+/* OCULTAR RADIO ORIGINAL */
+#survey .matrix-table .matrix-options input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+/* DISEÑO DE LOS BOTONES */
+#survey .matrix-table .matrix-options span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 46px;
+    border: 1px solid #b8cce4;
+    border-radius: 7px;
+    background: #ffffff;
+    color: #173b63;
+    font-size: 14px;
+    font-weight: 600;
+    box-sizing: border-box;
+    transition: all 0.2s ease;
+}
+
+/* EFECTO AL PASAR EL CURSOR */
+#survey .matrix-table .matrix-options label:hover span {
+    background: #eaf2fc;
+    border-color: #3265a0;
+}
+
+/* BOTÓN SELECCIONADO */
+#survey .matrix-table .matrix-options input:checked + span {
+    background: #285b96;
+    border-color: #285b96;
+    color: white;
+}
+
+/* CAMPO DE OBSERVACIÓN */
+#survey .matrix-table .ic-comment {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    min-height: 90px;
+    padding: 12px;
+    font-size: 13px;
+    line-height: 1.5;
+    border: 1px solid #b8cce4;
+    border-radius: 7px;
+    resize: vertical;
+    box-sizing: border-box;
+}
+
+/* CELDA DEL COMENTARIO */
+#survey .matrix-table td:has(.ic-comment) {
+    min-width: 280px;
+    padding: 12px;
+}
