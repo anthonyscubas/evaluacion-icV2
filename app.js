@@ -850,7 +850,7 @@ async function abrirReporteAnalista(analista) {
 
   try {
 
-    if (!reportesCargados) {
+    if (true) {
       const respuesta = await api({
         action: 'reportes',
         email: S.email
