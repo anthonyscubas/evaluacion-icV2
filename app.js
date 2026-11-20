@@ -792,7 +792,31 @@ $('loginForm').addEventListener('submit',login);$('logout').addEventListener('cl
 $('dashboardPeriod').addEventListener('change',drawDashboard);$('historyPeriod').addEventListener('change',drawHistory);$('surveyPeriod').addEventListener('change',drawMatrix);
 $('adminTabs').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>navigate('admin:'+b.dataset.admin)));
 $('analystForm').addEventListener('submit',e=>saveAdmin(e,'addAnalyst'));$('userForm').addEventListener('submit',e=>saveAdmin(e,'addUser'));$('channelForm').addEventListener('submit',e=>saveAdmin(e,'addChannel'));
-$('surveyForm').addEventListener('submit',e=>{e.preventDefault();saveMatrix(true)});$('saveDrafts').addEventListener('click',()=>saveMatrix(false));$('matrixBody').addEventListener('change',updateProgress);$('exportCsv').addEventListener('click',exportCsv);
+$('surveyForm').addEventListener('submit',e=>{e.preventDefault();saveMatrix(true)});$('saveDrafts').addEventListener('click',()=>saveMatrix(false));$('matrixBody').addEventListener('change',updateProgress);
+      let radioSeleccionado = null;
+      
+      $('matrixBody').addEventListener('pointerdown', e => {
+          const radio = e.target.closest('label')?.querySelector('input[type="radio"]');
+      
+          if (!radio) {
+              radioSeleccionado = null;
+              return;
+          }
+      
+          radioSeleccionado = radio.checked ? radio : null;
+      });
+      
+      $('matrixBody').addEventListener('click', e => {
+          const radio = e.target.closest('label')?.querySelector('input[type="radio"]');
+      
+          if (!radio || radio !== radioSeleccionado) return;
+      
+          radio.checked = false;
+          radioSeleccionado = null;
+      
+          updateProgress();
+      });
+      $('exportCsv').addEventListener('click',exportCsv);
 $('menuToggle').addEventListener('click',()=>document.body.classList.toggle('ic-menu-open'));
 
 const ventanaReportes = $('modal-reportes');
