@@ -8,11 +8,7 @@
 @media(max-width:1000px){.admin-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:900px){.admin-grid{grid-template-columns:1fr}}
 @media(max-width:560px){.actions{align-items:stretch;flex-direction:column}}
-
-
 .admin-link-button{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;border-radius:9px;font-weight:700;line-height:1.2}
-/* PRIORIDAD DE SEGUIMIENTO */
-
 .priority-list{
     display:grid;
     gap:12px;
