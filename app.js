@@ -388,10 +388,6 @@ function drawMatrix() {
                        ${esc(a.nombre)}
                    </div>
            
-                   <small class="analista-canal">
-                       ${esc(a.canal)}
-                   </small>
-           
                    <button
                        type="button"
                        class="analista-enlace"
