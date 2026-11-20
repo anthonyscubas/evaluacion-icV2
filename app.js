@@ -382,11 +382,20 @@ function drawMatrix() {
         <tr>
             <th class="matrix-question">Preguntas</th>
             ${list.map(a => `
-                <th class="matrix-person">
-                    ${esc(a.nombre)}
-                    <small style="display:block">${esc(a.canal)}</small>
-                </th>
-            `).join('')}
+               <th class="matrix-person">
+                   <button
+                       type="button"
+                       class="analista-enlace"
+                       data-id="${esc(a.id)}"
+                   >
+                       ${esc(a.nombre)}
+                   </button>
+           
+                   <small style="display:block">
+                       ${esc(a.canal)}
+                   </small>
+               </th>
+           `).join('')}
         </tr>
     `;
 
@@ -781,65 +790,145 @@ $('adminTabs').querySelectorAll('button').forEach(b=>b.addEventListener('click',
 $('analystForm').addEventListener('submit',e=>saveAdmin(e,'addAnalyst'));$('userForm').addEventListener('submit',e=>saveAdmin(e,'addUser'));$('channelForm').addEventListener('submit',e=>saveAdmin(e,'addChannel'));
 $('surveyForm').addEventListener('submit',e=>{e.preventDefault();saveMatrix(true)});$('saveDrafts').addEventListener('click',()=>saveMatrix(false));$('matrixBody').addEventListener('change',updateProgress);$('exportCsv').addEventListener('click',exportCsv);
 $('menuToggle').addEventListener('click',()=>document.body.classList.toggle('ic-menu-open'));
+
 const ventanaReportes = $('modal-reportes');
-const filtrosReportes = [
-  [$('filtroCanal'), 'canal'],
-  [$('filtroAnalista'), 'analista'],
-  [$('filtroReporte'), 'reporte']
-];
+
 let reportes = [];
+let reportesCargados = false;
 
-function dibujarReportes() {
-  const visibles = reportes.filter(r =>
-    filtrosReportes.every(([select, campo]) => !select.value || r[campo] === select.value)
-  );
+const MESES = [
+  'ENERO', 'FEBRERO', 'MARZO',
+  'ABRIL', 'MAYO', 'JUNIO',
+  'JULIO', 'AGOSTO', 'SEPTIEMBRE',
+  'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE'
+];
 
-  $('filasReportes').innerHTML = visibles.map(r => `
-    <tr>${[r.canal, r.programa, r.analista, r.reporte, r.kpi, r.frecuencia, r.mes]
-      .map(valor => `<td>${esc(valor)}</td>`).join('')}</tr>
-  `).join('');
+function enlaceSeguro(valor, texto = 'Ver enlace') {
+  const url = String(valor ?? '').trim();
 
-  $('estadoReportes').textContent = visibles.length
-    ? `${visibles.length} de ${reportes.length} reportes`
-    : 'No hay reportes para los filtros seleccionados.';
+  if (!/^https?:\/\//i.test(url)) {
+    return esc(url || '—');
+  }
+
+  return `
+    <a href="${esc(url)}"
+       target="_blank"
+       rel="noopener noreferrer">
+       ${esc(texto)} ↗
+    </a>
+  `;
 }
 
-$('verReportes').addEventListener('click', async () => {
-  const boton = $('verReportes');
-  boton.disabled = true;
-  reportes = [];
-  $('filasReportes').textContent = '';
-  $('estadoReportes').textContent = 'Cargando reportes…';
+function mesReporte(valor) {
+  const s = String(valor ?? '').trim();
+  const n = Number(s);
 
-  for (const [select] of filtrosReportes) {
-    select.replaceChildren(new Option('Todos', ''));
-    select.disabled = true;
+  if (/^\d{4}-\d{2}$/.test(s)) {
+    return Number(s.slice(5));
   }
+
+  if (Number.isInteger(n) && n >= 1 && n <= 12) {
+    return n;
+  }
+
+  return MESES.findIndex(m =>
+    m.toLowerCase() === s.toLowerCase()
+  ) + 1;
+}
+
+async function abrirReporteAnalista(analista) {
+
+  const periodo = $('surveyPeriod').value;
+  const mesNumero = Number(periodo.split('-')[1]);
+  const mesNombre = MESES[mesNumero - 1];
+
+  $('reporteMes').textContent = mesNombre;
+  $('reporteAnalista').textContent =
+    'ANALISTA: ' + analista.nombre;
+
+  $('filasReportes').innerHTML = '';
+  $('reporteInnovacion').innerHTML = '';
+  $('estadoReportes').textContent = 'Cargando información...';
 
   ventanaReportes.showModal();
 
   try {
-    reportes = await api({ action: 'reportes', email: S.email });
 
-    for (const [select, campo] of filtrosReportes) {
-      const opciones = [...new Set(reportes.map(r => r[campo]).filter(Boolean))];
-      opciones.sort((a, b) => a.localeCompare(b, 'es'));
-      for (const valor of opciones) select.add(new Option(valor, valor));
-      select.disabled = false;
+    if (!reportesCargados) {
+      const respuesta = await api({
+        action: 'reportes',
+        email: S.email
+      });
+
+      if (!Array.isArray(respuesta)) {
+        throw new Error('La respuesta de reportes no es una lista.');
+      }
+
+      reportes = respuesta;
+      reportesCargados = true;
     }
 
-    dibujarReportes();
+    const datos = reportes.filter(r => {
+
+      const mismoAnalista =
+        norm(r.analista) === norm(analista.nombre);
+
+      const mismoMes =
+        mesReporte(r.mes) === mesNumero;
+
+      return mismoAnalista && mismoMes;
+    });
+
+    if (!datos.length) {
+      $('estadoReportes').textContent =
+        'No hay reportes registrados para este analista en '
+        + mesNombre + '.';
+      return;
+    }
+
+    $('estadoReportes').textContent = '';
+
+    $('filasReportes').innerHTML = datos.map(r => `
+      <tr>
+        <td>${esc(r.reporte)}</td>
+        <td>${esc(r.kpi)}</td>
+        <td>${enlaceSeguro(r.prueba_reporte, 'Ver prueba')}</td>
+      </tr>
+    `).join('');
+
+    const innovaciones = [
+      ...new Set(
+        datos.map(r => String(r.innovacion ?? '').trim())
+             .filter(Boolean)
+      )
+    ];
+
+    $('reporteInnovacion').innerHTML =
+      innovaciones.length
+        ? innovaciones.map(url => `
+            <p>${enlaceSeguro(url, 'Ver innovación')}</p>
+          `).join('')
+        : '<p>No se registró innovación.</p>';
+
   } catch (error) {
-    $('estadoReportes').textContent = `No se pudieron cargar los reportes. ${error.message}`;
-  } finally {
-    boton.disabled = false;
-    if (!ventanaReportes.open) boton.focus();
+
+    $('estadoReportes').textContent =
+      'Error al cargar reportes: ' + error.message;
+
+  }
+}
+
+$('matrixHead').addEventListener('click', e => {
+  const boton = e.target.closest('.analista-enlace');
+  if (!boton) return;
+  const analista = surveyAnalysts().find(a =>
+    String(a.id) === String(boton.dataset.id)
+  );
+  if (analista) {
+    abrirReporteAnalista(analista);
   }
 });
-
-$('cerrarReportes').addEventListener('click', () => ventanaReportes.close());
-
-for (const [select] of filtrosReportes) {
-  select.addEventListener('change', dibujarReportes);
-}
+$('cerrarReportes').addEventListener('click', () => {
+  ventanaReportes.close();
+});
 })();
