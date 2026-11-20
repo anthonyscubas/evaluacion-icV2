@@ -838,11 +838,7 @@ function mesReporte(valor) {
 
 async function abrirReporteAnalista(analista) {
 
-  const periodo = $('surveyPeriod').value;
-  const mesNumero = Number(periodo.split('-')[1]);
-  const mesNombre = MESES[mesNumero - 1];
-
-  $('reporteMes').textContent = mesNombre;
+  $('reporteMes').textContent = 'CARGANDO MES...';
   $('reporteAnalista').textContent =
     'ANALISTA: ' + analista.nombre;
 
@@ -868,21 +864,23 @@ async function abrirReporteAnalista(analista) {
       reportesCargados = true;
     }
 
-    const datos = reportes.filter(r => {
-
-      const mismoAnalista =
-        norm(r.analista) === norm(analista.nombre);
-
-      const mismoMes =
-        mesReporte(r.mes) === mesNumero;
-
-      return mismoAnalista && mismoMes;
-    });
-
+    const datos = reportes.filter(r =>
+      norm(r.analista) === norm(analista.nombre)
+    );
+    const mesesEncontrados = [
+      ...new Set(
+        datos.map(r => String(r.mes || '').trim().toUpperCase())
+             .filter(Boolean)
+      )
+    ];
+    
+    $('reporteMes').textContent =
+      mesesEncontrados.length
+        ? mesesEncontrados.join(' / ')
+        : 'SIN MES REGISTRADO';
     if (!datos.length) {
       $('estadoReportes').textContent =
-        'No hay reportes registrados para este analista en '
-        + mesNombre + '.';
+        'No hay reportes registrados para este analista.';
       return;
     }
 
