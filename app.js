@@ -383,17 +383,25 @@ function drawMatrix() {
             <th class="matrix-question">Preguntas</th>
             ${list.map(a => `
                <th class="matrix-person">
+           
+                   <div class="analista-nombre">
+                       ${esc(a.nombre)}
+                   </div>
+           
+                   <small class="analista-canal">
+                       ${esc(a.canal)}
+                   </small>
+           
                    <button
                        type="button"
                        class="analista-enlace"
                        data-id="${esc(a.id)}"
+                       title="Consultar reportes del analista"
                    >
-                       ${esc(a.nombre)}
+                       <span aria-hidden="true">▤</span>
+                       Ver reportes
                    </button>
            
-                   <small style="display:block">
-                       ${esc(a.canal)}
-                   </small>
                </th>
            `).join('')}
         </tr>
