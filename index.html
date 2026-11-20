@@ -567,9 +567,6 @@
                   <span>Periodo</span>
                   <input id="surveyPeriod" type="month" required>
                 </label>
-                <button type="button" class="ic-btn" id="verReportes">
-                  Ver reportes
-                </button>
               </div>
 
               <div class="matrix-help">
@@ -632,41 +629,44 @@
       </main>
     </div>
   </div>
-  <dialog id="modal-reportes" class="modal-reportes" aria-labelledby="tituloReportes">
+  
+  <dialog id="modal-reportes" class="modal-reportes">
     <section class="reportes-contenido">
-      <button type="button" class="reportes-cerrar" id="cerrarReportes"
-              aria-label="Cerrar reportes">×</button>
   
-      <h2 id="tituloReportes">Reportes de analistas</h2>
+      <button type="button"
+              class="reportes-cerrar"
+              id="cerrarReportes"
+              aria-label="Cerrar">
+        ×
+      </button>
   
-      <div class="reportes-filtros">
-        <label>Canal <select id="filtroCanal"></select></label>
-        <label>Analista <select id="filtroAnalista"></select></label>
-        <label>Reporte <select id="filtroReporte"></select></label>
-      </div>
+      <p id="reporteMes" class="reporte-mes"></p>
+  
+      <h2 id="reporteAnalista"></h2>
   
       <p id="estadoReportes" role="status"></p>
   
       <div class="reportes-tabla-scroll">
-        <table class="reportes-tabla" aria-labelledby="tituloReportes">
+        <table class="reportes-tabla">
           <thead>
             <tr>
-              <th scope="col">Canal</th>
-              <th scope="col">Programa</th>
-              <th scope="col">Analista</th>
-              <th scope="col">Reporte</th>
-              <th scope="col">KPI</th>
-              <th scope="col">Frecuencia</th>
-              <th scope="col">Mes</th>
+              <th>REPORTES</th>
+              <th>KPI REVISA</th>
+              <th>PRUEBA_REPORTE</th>
             </tr>
           </thead>
+  
           <tbody id="filasReportes"></tbody>
         </table>
       </div>
+  
+      <div class="reporte-innovacion">
+        <h3>INNOVACIÓN:</h3>
+        <div id="reporteInnovacion"></div>
+      </div>
+  
     </section>
   </dialog>
-  
-  <!-- VENTANA EMERGENTE DE GUÍA DE EVALUACIÓN -->
   <dialog id="modalGuia" class="modal-guia">
     <div class="guia-contenido">
   
