@@ -474,3 +474,64 @@
 #modal-reportes .reportes-tabla th {
   width: auto;
 }
+/* Nombre del analista clicable */
+
+.analista-enlace {
+  background: transparent;
+  border: none;
+  padding: 5px;
+  color: inherit;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 4px;
+  transition: 0.2s;
+}
+
+.analista-enlace:hover {
+  color: #2563eb;
+  text-decoration-color: currentColor;
+}
+
+.analista-enlace:focus-visible {
+  outline: 2px solid #2563eb;
+  border-radius: 5px;
+}
+
+/* Mes */
+
+.reporte-mes {
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  color: #64748b;
+  margin-bottom: 8px;
+}
+
+/* Innovación */
+
+.reporte-innovacion {
+  margin-top: 25px;
+  padding: 20px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+}
+
+.reporte-innovacion h3 {
+  font-size: 14px;
+  margin-bottom: 12px;
+}
+
+.reporte-innovacion a,
+.reportes-tabla a {
+  color: #2563eb;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.reporte-innovacion a:hover,
+.reportes-tabla a:hover {
+  text-decoration: underline;
+}
