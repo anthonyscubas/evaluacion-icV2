@@ -33,11 +33,12 @@ sc.onerror=()=>finish(Error('No se pudo conectar a Apps Script'));
 sc.src=url+'?'+new URLSearchParams({...p,callback:cb,_:Date.now()});document.head.appendChild(sc);
 })}
 const permissions={
- ADMINISTRADOR:[['dashboard','▦','Resumen ejecutivo'],['schedule','▣','Fechas de evaluación'],['admin:analistas','◎','Analistas'],['admin:coordinadores','◈','Coordinadores'],['admin:controllers','◉','Controllers'],['admin:alicorp','▣','Alicorp'],['admin:canales','▦','Canales'],['history','▤','Histórico']],
- COORDINADOR:[['dashboard','▦','Resumen ejecutivo']],
- CONTROLLER:[['survey','▤','Evaluación interna']],
- ALICORP:[['survey','▤','Evaluación']]
-};
+ ADMINISTRADOR:[
+  ['dashboard','▦','Dashboard'],
+  ['admin:analistas','◎','Gestión'],
+  ['history','▤','Histórico'],
+  ['schedule','⚙','Configuración']
+ ],
 function navigate(key){
  const allowed=permissions[S.role]||[];
  if(!allowed.some(x=>x[0]===key))return;
@@ -790,7 +791,12 @@ function exportCsv(){const rows=[...$('historyRows').querySelectorAll('tr')].fil
  const blob=new Blob(['\ufeff'+data],{type:'text/csv;charset=utf-8'}),link=document.createElement('a');link.href=URL.createObjectURL(blob);link.download='evaluaciones_IC_'+$('historyPeriod').value+'.csv';link.click();setTimeout(()=>URL.revokeObjectURL(link.href),1000)}
 $('loginForm').addEventListener('submit',login);$('logout').addEventListener('click',()=>location.reload());$('brandHome').addEventListener('click',e=>{e.preventDefault();navigate(permissions[S.role][0][0])});
 $('dashboardPeriod').addEventListener('change',drawDashboard);$('historyPeriod').addEventListener('change',drawHistory);$('surveyPeriod').addEventListener('change',drawMatrix);
-$('adminTabs').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>navigate('admin:'+b.dataset.admin)));
+$('adminTabs').querySelectorAll('button').forEach(b => {
+  b.addEventListener('click', () => {
+    if (S.role !== 'ADMINISTRADOR') return;
+    drawAdmin(b.dataset.admin);
+  });
+});
 $('analystForm').addEventListener('submit',e=>saveAdmin(e,'addAnalyst'));$('userForm').addEventListener('submit',e=>saveAdmin(e,'addUser'));$('channelForm').addEventListener('submit',e=>saveAdmin(e,'addChannel'));
 $('surveyForm').addEventListener('submit',e=>{e.preventDefault();saveMatrix(true)});$('saveDrafts').addEventListener('click',()=>saveMatrix(false));$('matrixBody').addEventListener('change',updateProgress);
       let radioSeleccionado = null;
