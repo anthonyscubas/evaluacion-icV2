@@ -11,13 +11,13 @@ const Q={
  ['resuelve_incidencias_tiempo','¿El analista atiende y resuelve las incidencias levantadas a tiempo?',6],
  ['capacita_actualizaciones','¿El analista capacita al equipo comercial en el uso de plataforma app / web cuando hay actualizaciones?',4],
  ['comunica_status_tiempo','¿El analista comunica status de avances del relevo de la información a tiempo?',4],
- ['registra_inconsistencias','¿El analista registró inconsistencia en el/los reporte a cargo del analista?',5],
+ ['registra_inconsistencias','¿Con qué frecuencia el analista registra inconsistencias en los reportes a su cargo?',5],
  ['propone_soluciones',"¿El analista aplica soluciones innovadoras en el/los reportes/KPI a su cargo?",4]],
  ALICORP:[
  ['publica_reportes_tiempo','¿El analista envía / publica los reportes / solicitudes a tiempo?',14],
  ['participa_reuniones','¿El analista participa en reuniones CLAVES con el cliente?',9],
  ['resuelve_incidencias_tiempo','¿El analista atiende y resuelve las incidencias levantadas a tiempo?',13],
- ['registra_inconsistencias','¿El analista registró inconsistencia en el/los reporte a cargo del analista?',10],
+ ['registra_inconsistencias','¿Con qué frecuencia el analista registra inconsistencias en los reportes a su cargo?',10],
  ['propone_soluciones',"¿El analista aplica soluciones innovadoras en el/los reportes/KPI a su cargo?",9]]
 };
 const S={email:'',user:null,data:null,role:'',screen:'',adminTab:'analistas'};
